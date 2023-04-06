@@ -1,42 +1,69 @@
 import datetime as dt
+import json
 import sys
 
+import requests
+import validators
 from requests.exceptions import HTTPError
 from steam.webapi import WebAPI
+from country_name import search_country_name
 
 import config as cfg
 
 
 api = WebAPI(key=cfg.API_KEY)
+request_url = 'http://api.steampowered.com/ISteamUser/ResolveVanityURL/v0001/?key=' + cfg.API_KEY + '&vanityurl='
 
 user_id: int
-user_request = input('Enter Steam ID or Vanity URL: ').strip()
+user_request = input('Enter Steam ID or Vanity URL or Nickname: ').strip()
 if user_request.isnumeric() and len(user_request) == 17:
     user_id = int(user_request)
 else:
-    resolve_vanity = api.ISteamUser.ResolveVanityURL(vanityurl=user_request, url_type=1)['response']
-    if resolve_vanity['success'] == 1:
-        user_id = resolve_vanity['steamid']
-    elif resolve_vanity['success'] == 42:
-        print('No user with this Vanity URL found.')
-        sys.exit()
+    if validators.url(user_request):
+        resolve_vanity = api.ISteamUser.ResolveVanityURL(vanityurl=user_request, url_type=1)['response']
+        if resolve_vanity['success'] == 1:
+            user_id = resolve_vanity['steamid']
+        elif resolve_vanity['success'] == 42:
+            print('No user with this Vanity URL found.')
+            sys.exit()
+        else:
+            print('Failed to resolve Vanity URL, please try again.')
+            sys.exit()
     else:
-        print('Failed to resolve Vanity URL, please try again.')
-        sys.exit()
+        response = requests.get(request_url + user_request)
+        if response.status_code == 200:
+            data = json.loads(response.text)['response']
+            if data['success'] == 1:
+                user_id = data['steamid']
+            elif data['success'] == 42:
+                print('No user with this nickname.')
+                sys.exit()
+            else:
+                print('Error, please try again.')
+                sys.exit()
 
 print('\n----- User summary -----\n')
 player_request = api.ISteamUser.GetPlayerSummaries(steamids=user_id)
+player_request_level = api.IPlayerService.GetSteamLevel(steamid=user_id)
 if player_request:
     user = player_request['response']['players'][0]
+    level = player_request_level['response']['player_level']
 
     nick = user['personaname']
     name = user.get('realname')
+    avatar = user.get('avatarfull')
+    country = user.get('loccountrycode')
     profile_created = dt.datetime.fromtimestamp(user['timecreated']).strftime('%A, %d %B %Y, %H:%M:%S')
     last_logoff = user.get('lastlogoff')
 
+    print(f'URL Avatar: {avatar}')
     print(f'Nickname: {nick}')
     if name:
         print(f'Real name*: {name}')
+    if country:
+        print(f'Country: {search_country_name(country)}')
+    if level:
+        print(f'User level: {level}')
     print()
     print(f'Profile created: {profile_created}')
     if last_logoff:
@@ -63,11 +90,31 @@ if player_request:
 
 
 print('\n----- Friends (WIP) -----\n')
+
+
+def friends_parameters(fl):
+    s = []
+    for friend in fl:
+        friend_request = api.ISteamUser.GetPlayerSummaries(steamids=friend['steamid'])
+        user = friend_request['response']['players'][0]
+        nick = user['personaname']
+        name = user.get('realname')
+        avatar = user.get('avatarfull')
+        s.append([avatar, nick, name])
+    return s
+
+
 try:
     friendslist_request = api.ISteamUser.GetFriendList(steamid=user_id)
     if friendslist_request:
         friends_list = friendslist_request['friendslist']['friends']
-        print(*friends_list, sep='\n')
+        friends_list = friends_parameters(friends_list)
+        for i in friends_list:
+            if i[2] is None:
+                print(f"URL Avatar: {i[0]}", f'Nickname: {i[1]}', sep='\n')
+            else:
+                print(f"URL Avatar: {i[0]}", f'Nickname: {i[1]}', f'Real name*: {i[2]}', sep='\n')
+            print()
     else:
         print('This user hidden his friend list.')
 except HTTPError:
