@@ -1,4 +1,15 @@
-countries = [
+from typing import NamedTuple
+
+
+class Country(NamedTuple):
+    timezones: list[str]
+    code: str
+    continent: str
+    name: str
+    capital: str
+
+
+_countries_raw = (
     {'timezones': ['Europe/Andorra'], 'code': 'AD', 'continent': 'Europe', 'name': 'Andorra',
      'capital': 'Andorra la Vella'},
     {'timezones': ['Asia/Kabul'], 'code': 'AF', 'continent': 'Asia', 'name': 'Afghanistan', 'capital': 'Kabul'},
@@ -301,10 +312,12 @@ countries = [
      'capital': 'Abu Dhabi'},
     {'timezones': ['Europe/London'], 'code': 'GB', 'continent': 'Europe', 'name': 'United Kingdom',
      'capital': 'London'},
-]
+)
+
+countries = tuple(Country(**c) for c in _countries_raw)
 
 
-def search_country_name(abbreviation):
-    for i in countries:
-        if i['code'] == abbreviation:
-            return i['name']
+def search_country_by_name(abbreviation) -> Country:
+    for country in countries:
+        if country.code == abbreviation:
+            return country
