@@ -20,9 +20,9 @@
 {% if user.last_logoff %}
     <h4>Last logoff: {{ user.last_logoff }}</h4>
 {% endif %}
-
-<a href="games">Games</a>
-
+<form method="post">
+    <button type="submit" class="btn btn-dark" name="usergames">Games</button>
+</form>
 {% if user.bans.game_bans is not none %}
     <h4>Game bans: {{ user.bans.game_bans if user.bans.game_bans else "No" }}</h4>
 {% endif %}

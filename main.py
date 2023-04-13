@@ -8,10 +8,11 @@ import steamapi
 
 import config as cfg
 
-from flask import Flask, render_template, redirect
+from flask import Flask, render_template, redirect, request, url_for
 
 TITLE = 'Steamscroller'
 app = Flask(__name__)
+app.debug = True
 app.config['SECRET_KEY'] = cfg.FLASKAPP_SECRET_KEY
 
 
@@ -23,8 +24,35 @@ def index():
     return render_template("index.html", title=TITLE)
 
 
-@app.route("/profiles/<int:steamid>/games")
+@app.route("/profiles/<int:steamid>/cs2stats/")
+@app.route("/profiles/<int:steamid>/csgostats/")
+@app.route("/profiles/<int:steamid>/730stats/")
+def steam_profile_730stats(steamid: int):
+    if not SteamID(steamid).is_valid():
+        return 'User not found.'
+
+    player_request = steamapi.api_caller.ISteamUser.GetPlayerSummaries(steamids=steamid)["response"]["players"]
+    if not player_request:
+        return 'User not found.'
+
+    user = player_request[0]
+    nick = user['personaname']
+    avatar = user.get('avatarfull')
+
+    stats = steamapi.get_730_stats(steamid)
+    if not stats:
+        return 'Failed to get stats.'
+
+    return render_template('steam_profile_730_stats.html', title=f"{TITLE} :: {nick}",
+                           nick=nick, avatar=avatar, stats=stats.text.format(*stats.stats_only()))
+
+
+@app.route("/profiles/<int:steamid>/games/", methods=['POST', 'GET'])
 def steam_profile_games(steamid: int):
+    if request.method == 'POST':
+        if 'user730stats' in request.form:
+            return redirect(url_for('steam_profile_730stats', steamid=steamid))
+
     if not SteamID(steamid).is_valid():
         return 'User not found.'
 
@@ -42,8 +70,12 @@ def steam_profile_games(steamid: int):
                            nick=nick, avatar=avatar, games=games)
 
 
-@app.route("/profiles/<int:steamid>")
+@app.route("/profiles/<int:steamid>/", methods=['POST', 'GET'])
 def steam_profile(steamid: int):
+    if request.method == 'POST':
+        if 'usergames' in request.form:
+            return redirect(url_for('steam_profile_games', steamid=steamid))
+
     if not SteamID(steamid).is_valid():
         return 'User not found.'
 
@@ -101,12 +133,12 @@ def steam_profile(steamid: int):
                                      Bans(community_ban, vac_ban, game_bans, economy_ban, days_since_last_ban)))
 
 
-@app.route("/id/<string:vanityurl>")
+@app.route("/id/<string:vanityurl>/", strict_slashes=False)
 def steam_profile_vanity(vanityurl: str):
     resolve_vanity = steamapi.api_caller.ISteamUser.ResolveVanityURL(vanityurl=vanityurl, url_type=1)['response']
 
     if resolve_vanity['success'] == 1:
-        return redirect(f'/profiles/{resolve_vanity["steamid"]}')
+        return redirect(url_for('steam_profile', steamid=resolve_vanity["steamid"]))
 
     if resolve_vanity['success'] == 42:
         return 'User not found.'

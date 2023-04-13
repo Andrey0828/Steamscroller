@@ -2,6 +2,7 @@ import requests
 from steam.webapi import WebAPI
 
 import config as cfg
+from games import Appid730GameStats
 
 api_caller = WebAPI(key=cfg.API_KEY)
 
@@ -27,3 +28,11 @@ def get_games(steamid) -> list | None:
                                                             include_extended_appinfo=False)
     if games_request:
         return games_request['response']['games']
+
+
+def get_730_stats(steamid) -> Appid730GameStats | None:
+    response = api_caller.ISteamUserStats.GetUserStatsForGame(appid=730, steamid=76561198260803063)
+    if response:
+        stats_dict = {stat['name']: stat['value'] for stat in response["playerstats"]["stats"]}
+        stats_dict['steamid'] = steamid
+        return Appid730GameStats.from_dict(stats_dict)
