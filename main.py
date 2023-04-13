@@ -45,7 +45,7 @@ def steam_profile_730stats(steamid: int):
         return 'Failed to get stats.'
 
     return render_template('steam_profile_730_stats.html', title=f"{TITLE} :: {nick}",
-                           nick=nick, avatar=avatar, stats=stats.text.format(*stats.stats_only()))
+                           nick=nick, avatar=avatar, stats=stats.get_text())
 
 
 @app.route("/profiles/<int:steamid>/games/", methods=['POST', 'GET'])

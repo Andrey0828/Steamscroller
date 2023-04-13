@@ -187,91 +187,327 @@ class Appid730GameStats(NamedTuple):
     def stats_only(self):
         return tuple(stat for field, stat in zip(self._fields, self) if field != 'steamid')
 
-    @property
-    def text(self):
-        return """<h3>📊 General in-game statistics:</h3>
-<ul><li>Playtime (matchmaking): <b>{:,}</b> hours</li><li>Kills: <b>{:,}</b></li><li>Deaths: <b>{:,}</b></li><li>K/D ratio: <b>{}</b></li></ul><br>
-<ul><li>Matches played: <b>{:,}</b></li><li>Matches won: <b>{:,}</b></li><li>Win percentage: <b>{}</b>%</li><li>Rounds played: <b>{:,}</b></li><li>Pistol rounds won: <b>{:,}</b></li></ul>
-<hr>
-<h3>🔫 Shooting statistics:</h3>
-<ul><li>Shots: <b>{:,}</b></li><li>Hits: <b>{:,}</b></li><li>Fire accuracy: <b>{}</b>%</li><li>Headshot accuracy: <b>{}</b>%</li></ul>
-<hr>
-<h3>🗺️ Map statistics:</h3>
-<ul><li>Best map: <b>{}</b></li><li>Win percentage: <b>{}</b>%</li></ul>
-<hr>
-<h3>🔰 Misc:</h3>
-<ul><li>MVPs: <b>{:,}</b></li><li>Money earned: <b>{:,}</b>$</li><li>Hostages rescued: <b>{:,}</b></li><li>Weapons donated: <b>{:,}</b></li><li>Windows broken: <b>{:,}</b></li></ul><br>
-<ul><li>Damage done: <b>{:,}</b></li><li>Bombs planted: <b>{:,}</b></li><li>Bombs defused: <b>{:,}</b></li></ul><br>
-<ul><li>Knife kills: <b>{:,}</b></li><li>HE grenade kills: <b>{:,}</b></li><li>Molotov kills: <b>{:,}</b></li></ul><br>
-<ul><li>Zeus shots: <b>{:,}</b></li><li>Zeus kills: <b>{:,}</b></li><li>Zeus fire accuracy: <b>{}</b>%</li></ul><br>
-<ul><li>Knife fights won: <b>{:,}</b></li><li>Kills with enemy weapons: <b>{:,}</b></li><li>Blind enemies killed: <b>{:,}</b></li><li>Zoomed snipers killed: <b>{:,}</b></li></ul>
-<hr>
-<h3>🔫 Gun statistics:</h3>
-<h4>AK-47:</h4>
-<ul><li>Shots: <b>{:,}</b></li><li>Hits: <b>{:,}</b></li><li>Kills: <b>{:,}</b></li><li>Fire accuracy: <b>{}</b>%</li></ul>
-<h4>M4A4 / M4A1-S:</h4>
-<ul><li>Shots: <b>{:,}</b></li><li>Hits: <b>{:,}</b></li><li>Kills: <b>{:,}</b></li><li>Fire accuracy: <b>{}</b>%</li></ul>
-<h4>AWP:</h4>
-<ul><li>Shots: <b>{:,}</b></li><li>Hits: <b>{:,}</b></li><li>Kills: <b>{:,}</b></li><li>Fire accuracy: <b>{}</b>%</li></ul>
-<hr>
-<h3>🔫 Pistol statistics:</h3>
-<h4>Glock-18:</h4>
-<ul><li>Shots: <b>{:,}</b></li><li>Hits: <b>{:,}</b></li><li>Kills: <b>{:,}</b></li><li>Fire accuracy: <b>{}</b>%</li></ul>
-<h4>USP-S / P2000:</h4>
-<ul><li>Shots: <b>{:,}</b></li><li>Hits: <b>{:,}</b></li><li>Kills: <b>{:,}</b></li><li>Fire accuracy: <b>{}</b>%</li></ul>
-<h4>P250:</h4>
-<ul><li>Shots: <b>{:,}</b></li><li>Hits: <b>{:,}</b></li><li>Kills: <b>{:,}</b></li><li>Fire accuracy: <b>{}</b>%</li></ul>
-<h4>Dual Berettas:</h4>
-<ul><li>Shots: <b>{:,}</b></li><li>Hits: <b>{:,}</b></li><li>Kills: <b>{:,}</b></li><li>Fire accuracy: <b>{}</b>%</li></ul>
-<h4>Five-SeveN / CZ75-Auto:</h4>
-<ul><li>Shots: <b>{:,}</b></li><li>Hits: <b>{:,}</b></li><li>Kills: <b>{:,}</b></li><li>Fire accuracy: <b>{}</b>%</li></ul>
-<h4>Tec-9 / CZ75-Auto:</h4>
-<ul><li>Shots: <b>{:,}</b></li><li>Hits: <b>{:,}</b></li><li>Kills: <b>{:,}</b></li><li>Fire accuracy: <b>{}</b>%</li></ul>
-<h4>Desert Eagle / R8 Revolver:</h4>
-<ul><li>Shots: <b>{:,}</b></li><li>Hits: <b>{:,}</b></li><li>Kills: <b>{:,}</b></li><li>Fire accuracy: <b>{}</b>%</li></ul>
-<hr>
-<h3>🔫 SMG statistics:</h3>
-<h4>MAC-10:</h4>
-<ul><li>Shots: <b>{:,}</b></li><li>Hits: <b>{:,}</b></li><li>Kills: <b>{:,}</b></li><li>Fire accuracy: <b>{}</b>%</li></ul>
-<h4>MP7 / MP5-SD:</h4>
-<ul><li>Shots: <b>{:,}</b></li><li>Hits: <b>{:,}</b></li><li>Kills: <b>{:,}</b></li><li>Fire accuracy: <b>{}</b>%</li></ul>
-<h4>MP9:</h4>
-<ul><li>Shots: <b>{:,}</b></li><li>Hits: <b>{:,}</b></li><li>Kills: <b>{:,}</b></li><li>Fire accuracy: <b>{}</b>%</li></ul>
-<h4>UMP-45:</h4>
-<ul><li>Shots: <b>{:,}</b></li><li>Hits: <b>{:,}</b></li><li>Kills: <b>{:,}</b></li><li>Fire accuracy: <b>{}</b>%</li></ul>
-<h4>PP-Bizon:</h4>
-<ul><li>Shots: <b>{:,}</b></li><li>Hits: <b>{:,}</b></li><li>Kills: <b>{:,}</b></li><li>Fire accuracy: <b>{}</b>%</li></ul>
-<h4>P90:</h4>
-<ul><li>Shots: <b>{:,}</b></li><li>Hits: <b>{:,}</b></li><li>Kills: <b>{:,}</b></li><li>Fire accuracy: <b>{}</b>%</li></ul>
-<hr>
-<h3>🔫 Rifle statistics:</h3>
-<h4>Famas:</h4>
-<ul><li>Shots: <b>{:,}</b></li><li>Hits: <b>{:,}</b></li><li>Kills: <b>{:,}</b></li><li>Fire accuracy: <b>{}</b>%</li></ul>
-<h4>Galil AR:</h4>
-<ul><li>Shots: <b>{:,}</b></li><li>Hits: <b>{:,}</b></li><li>Kills: <b>{:,}</b></li><li>Fire accuracy: <b>{}</b>%</li></ul>
-<h4>AUG:</h4>
-<ul><li>Shots: <b>{:,}</b></li><li>Hits: <b>{:,}</b></li><li>Kills: <b>{:,}</b></li><li>Fire accuracy: <b>{}</b>%</li></ul>
-<h4>SG 553:</h4>
-<ul><li>Shots: <b>{:,}</b></li><li>Hits: <b>{:,}</b></li><li>Kills: <b>{:,}</b></li><li>Fire accuracy: <b>{}</b>%</li></ul>
-<hr>
-<h3>🔫 Sniper rifle statistics:</h3>
-<h4>SSG 08:</h4>
-<ul><li>Shots: <b>{:,}</b></li><li>Hits: <b>{:,}</b></li><li>Kills: <b>{:,}</b></li><li>Fire accuracy: <b>{}</b>%</li></ul>
-<h4>SCAR-20:</h4>
-<ul><li>Shots: <b>{:,}</b></li><li>Hits: <b>{:,}</b></li><li>Kills: <b>{:,}</b></li><li>Fire accuracy: <b>{}</b>%</li></ul>
-<h4>G3SG1:</h4>
-<ul><li>Shots: <b>{:,}</b></li><li>Hits: <b>{:,}</b></li><li>Kills: <b>{:,}</b></li><li>Fire accuracy: <b>{}</b>%</li></ul>
-<hr>
-<h3>🔫 Heavy gun statistics:</h3>
-<h4>Nova:</h4>
-<ul><li>Shots: <b>{:,}</b></li><li>Hits: <b>{:,}</b></li><li>Kills: <b>{:,}</b></li><li>Fire accuracy: <b>{}</b>%</li></ul>
-<h4>MAG-7:</h4>
-<ul><li>Shots: <b>{:,}</b></li><li>Hits: <b>{:,}</b></li><li>Kills: <b>{:,}</b></li><li>Fire accuracy: <b>{}</b>%</li></ul>
-<h4>Sawed-Off:</h4>
-<ul><li>Shots: <b>{:,}</b></li><li>Hits: <b>{:,}</b></li><li>Kills: <b>{:,}</b></li><li>Fire accuracy: <b>{}</b>%</li></ul>
-<h4>XM1014:</h4>
-<ul><li>Shots: <b>{:,}</b></li><li>Hits: <b>{:,}</b></li><li>Kills: <b>{:,}</b></li><li>Fire accuracy: <b>{}</b>%</li></ul>
-<h4>Negev:</h4>
-<ul><li>Shots: <b>{:,}</b></li><li>Hits: <b>{:,}</b></li><li>Kills: <b>{:,}</b></li><li>Fire accuracy: <b>{}</b>%</li></ul>
-<h4>M249:</h4>
-<ul><li>Shots: <b>{:,}</b></li><li>Hits: <b>{:,}</b></li><li>Kills: <b>{:,}</b></li><li>Fire accuracy: <b>{}</b>%</li></ul>"""
+    def get_text(self):
+        return """<div class="stats-container">
+                    <div class="stats-category">
+                        <h3>📊 General in-game statistics:</h3>
+                        <ul>
+                            <li>Playtime (matchmaking): <b>{:,}</b> hours</li>
+                            <li>Kills: <b>{:,}</b></li>
+                            <li>Deaths: <b>{:,}</b></li>
+                            <li>K/D ratio: <b>{}</b></li>
+                        </ul>
+                        <br>
+                        <ul>
+                            <li>Matches played: <b>{:,}</b></li>
+                            <li>Matches won: <b>{:,}</b></li>
+                            <li>Win percentage: <b>{}</b>%</li>
+                            <li>Rounds played: <b>{:,}</b></li>
+                            <li>Pistol rounds won: <b>{:,}</b></li>
+                        </ul>
+                    </div>
+        
+                    <div class="stats-category">
+                        <h3>🔫 Shooting statistics:</h3>
+                        <ul>
+                            <li>Shots: <b>{:,}</b></li>
+                            <li>Hits: <b>{:,}</b></li>
+                            <li>Fire accuracy: <b>{}</b>%</li>
+                            <li>Headshot accuracy: <b>{}</b>%</li>
+                        </ul>
+                    </div>
+        
+                    <div class="stats-category">
+                        <h3>🗺️ Map statistics:</h3>
+                        <ul>
+                            <li>Best map: <b>{}</b></li>
+                            <li>Win percentage: <b>{}</b>%</li>
+                        </ul>
+                    </div>
+        
+                    <div class="stats-category">
+                        <h3>🔰 Misc:</h3>
+                        <ul>
+                            <li>MVPs: <b>{:,}</b></li>
+                            <li>Money earned: <b>{:,}</b>$</li>
+                            <li>Hostages rescued: <b>{:,}</b></li>
+                            <li>Weapons donated: <b>{:,}</b></li>
+                            <li>Windows broken: <b>{:,}</b></li>
+                        </ul>
+                        <br>
+                        <ul>
+                            <li>Damage done: <b>{:,}</b></li>
+                            <li>Bombs planted: <b>{:,}</b></li>
+                            <li>Bombs defused: <b>{:,}</b></li>
+                        </ul>
+                        <br>
+                        <ul>
+                            <li>Knife kills: <b>{:,}</b></li>
+                            <li>HE grenade kills: <b>{:,}</b></li>
+                            <li>Molotov kills: <b>{:,}</b></li>
+                        </ul>
+                        <br>
+                        <ul>
+                            <li>Zeus shots: <b>{:,}</b></li>
+                            <li>Zeus kills: <b>{:,}</b></li>
+                            <li>Zeus fire accuracy: <b>{}</b>%</li>
+                        </ul>
+                        <br>
+                        <ul>
+                            <li>Knife fights won: <b>{:,}</b></li>
+                            <li>Kills with enemy weapons: <b>{:,}</b></li>
+                            <li>Blind enemies killed: <b>{:,}</b></li>
+                            <li>Zoomed snipers killed: <b>{:,}</b></li>
+                        </ul>
+                    </div>
+        
+                    <div class="stats-category"><h3>🔫 Gun statistics:</h3>
+                        <div class="stats-subcategory"><h4>AK-47:</h4>
+                            <ul>
+                                <li>Shots: <b>{:,}</b></li>
+                                <li>Hits: <b>{:,}</b></li>
+                                <li>Kills: <b>{:,}</b></li>
+                                <li>Fire accuracy: <b>{}</b>%</li>
+                            </ul>
+                        </div>
+                        <div class="stats-subcategory"><h4>M4A4 / M4A1-S:</h4>
+                            <ul>
+                                <li>Shots: <b>{:,}</b></li>
+                                <li>Hits: <b>{:,}</b></li>
+                                <li>Kills: <b>{:,}</b></li>
+                                <li>Fire accuracy: <b>{}</b>%</li>
+                            </ul>
+                        </div>
+                        <div class="stats-subcategory"><h4>AWP:</h4>
+                            <ul>
+                                <li>Shots: <b>{:,}</b></li>
+                                <li>Hits: <b>{:,}</b></li>
+                                <li>Kills: <b>{:,}</b></li>
+                                <li>Fire accuracy: <b>{}</b>%</li>
+                            </ul>
+                        </div>
+                    </div>
+        
+                    <div class="stats-category"><h3>🔫 Pistol statistics:</h3>
+                        <div class="stats-subcategory"><h4>Glock-18:</h4>
+                            <ul>
+                                <li>Shots: <b>{:,}</b></li>
+                                <li>Hits: <b>{:,}</b></li>
+                                <li>Kills: <b>{:,}</b></li>
+                                <li>Fire accuracy: <b>{}</b>%</li>
+                            </ul>
+                        </div>
+                        <div class="stats-subcategory"><h4>USP-S / P2000:</h4>
+                            <ul>
+                                <li>Shots: <b>{:,}</b></li>
+                                <li>Hits: <b>{:,}</b></li>
+                                <li>Kills: <b>{:,}</b></li>
+                                <li>Fire accuracy: <b>{}</b>%</li>
+                            </ul>
+                        </div>
+                        <div class="stats-subcategory"><h4>P250:</h4>
+                            <ul>
+                                <li>Shots: <b>{:,}</b></li>
+                                <li>Hits: <b>{:,}</b></li>
+                                <li>Kills: <b>{:,}</b></li>
+                                <li>Fire accuracy: <b>{}</b>%</li>
+                            </ul>
+                        </div>
+                        <div class="stats-subcategory"><h4>Dual Berettas:</h4>
+                            <ul>
+                                <li>Shots: <b>{:,}</b></li>
+                                <li>Hits: <b>{:,}</b></li>
+                                <li>Kills: <b>{:,}</b></li>
+                                <li>Fire accuracy: <b>{}</b>%</li>
+                            </ul>
+                        </div>
+                        <div class="stats-subcategory"><h4>Five-SeveN / CZ75-Auto:</h4>
+                            <ul>
+                                <li>Shots: <b>{:,}</b></li>
+                                <li>Hits: <b>{:,}</b></li>
+                                <li>Kills: <b>{:,}</b></li>
+                                <li>Fire accuracy: <b>{}</b>%</li>
+                            </ul>
+                        </div>
+                        <div class="stats-subcategory"><h4>Tec-9 / CZ75-Auto:</h4>
+                            <ul>
+                                <li>Shots: <b>{:,}</b></li>
+                                <li>Hits: <b>{:,}</b></li>
+                                <li>Kills: <b>{:,}</b></li>
+                                <li>Fire accuracy: <b>{}</b>%</li>
+                            </ul>
+                        </div>
+                        <div class="stats-subcategory"><h4>Desert Eagle / R8 Revolver:</h4>
+                            <ul>
+                                <li>Shots: <b>{:,}</b></li>
+                                <li>Hits: <b>{:,}</b></li>
+                                <li>Kills: <b>{:,}</b></li>
+                                <li>Fire accuracy: <b>{}</b>%</li>
+                            </ul>
+                        </div>
+                    </div>
+        
+                    <div class="stats-category"><h3>🔫 SMG statistics:</h3>
+                        <div class="stats-subcategory"><h4>MAC-10:</h4>
+                            <ul>
+                                <li>Shots: <b>{:,}</b></li>
+                                <li>Hits: <b>{:,}</b></li>
+                                <li>Kills: <b>{:,}</b></li>
+                                <li>Fire accuracy: <b>{}</b>%</li>
+                            </ul>
+                        </div>
+                        <div class="stats-subcategory"><h4>MP7 / MP5-SD:</h4>
+                            <ul>
+                                <li>Shots: <b>{:,}</b></li>
+                                <li>Hits: <b>{:,}</b></li>
+                                <li>Kills: <b>{:,}</b></li>
+                                <li>Fire accuracy: <b>{}</b>%</li>
+                            </ul>
+                        </div>
+                        <div class="stats-subcategory"><h4>MP9:</h4>
+                            <ul>
+                                <li>Shots: <b>{:,}</b></li>
+                                <li>Hits: <b>{:,}</b></li>
+                                <li>Kills: <b>{:,}</b></li>
+                                <li>Fire accuracy: <b>{}</b>%</li>
+                            </ul>
+                        </div>
+                        <div class="stats-subcategory"><h4>UMP-45:</h4>
+                            <ul>
+                                <li>Shots: <b>{:,}</b></li>
+                                <li>Hits: <b>{:,}</b></li>
+                                <li>Kills: <b>{:,}</b></li>
+                                <li>Fire accuracy: <b>{}</b>%</li>
+                            </ul>
+                        </div>
+                        <div class="stats-subcategory"><h4>PP-Bizon:</h4>
+                            <ul>
+                                <li>Shots: <b>{:,}</b></li>
+                                <li>Hits: <b>{:,}</b></li>
+                                <li>Kills: <b>{:,}</b></li>
+                                <li>Fire accuracy: <b>{}</b>%</li>
+                            </ul>
+                        </div>
+                        <div class="stats-subcategory"><h4>P90:</h4>
+                            <ul>
+                                <li>Shots: <b>{:,}</b></li>
+                                <li>Hits: <b>{:,}</b></li>
+                                <li>Kills: <b>{:,}</b></li>
+                                <li>Fire accuracy: <b>{}</b>%</li>
+                            </ul>
+                        </div>
+                    </div>
+        
+                    <div class="stats-category"><h3>🔫 Rifle statistics:</h3>
+                        <div class="stats-subcategory"><h4>FAMAS:</h4>
+                            <ul>
+                                <li>Shots: <b>{:,}</b></li>
+                                <li>Hits: <b>{:,}</b></li>
+                                <li>Kills: <b>{:,}</b></li>
+                                <li>Fire accuracy: <b>{}</b>%</li>
+                            </ul>
+                        </div>
+                        <div class="stats-subcategory"><h4>Galil AR:</h4>
+                            <ul>
+                                <li>Shots: <b>{:,}</b></li>
+                                <li>Hits: <b>{:,}</b></li>
+                                <li>Kills: <b>{:,}</b></li>
+                                <li>Fire accuracy: <b>{}</b>%</li>
+                            </ul>
+                        </div>
+                        <div class="stats-subcategory"><h4>AUG:</h4>
+                            <ul>
+                                <li>Shots: <b>{:,}</b></li>
+                                <li>Hits: <b>{:,}</b></li>
+                                <li>Kills: <b>{:,}</b></li>
+                                <li>Fire accuracy: <b>{}</b>%</li>
+                            </ul>
+                        </div>
+                        <div class="stats-subcategory"><h4>SG 553:</h4>
+                            <ul>
+                                <li>Shots: <b>{:,}</b></li>
+                                <li>Hits: <b>{:,}</b></li>
+                                <li>Kills: <b>{:,}</b></li>
+                                <li>Fire accuracy: <b>{}</b>%</li>
+                            </ul>
+                        </div>
+                    </div>
+        
+                    <div class="stats-category"><h3>🔫 Sniper rifle statistics:</h3>
+                        <div class="stats-subcategory"><h4>SSG 08:</h4>
+                            <ul>
+                                <li>Shots: <b>{:,}</b></li>
+                                <li>Hits: <b>{:,}</b></li>
+                                <li>Kills: <b>{:,}</b></li>
+                                <li>Fire accuracy: <b>{}</b>%</li>
+                            </ul>
+                        </div>
+                        <div class="stats-subcategory"><h4>SCAR-20:</h4>
+                            <ul>
+                                <li>Shots: <b>{:,}</b></li>
+                                <li>Hits: <b>{:,}</b></li>
+                                <li>Kills: <b>{:,}</b></li>
+                                <li>Fire accuracy: <b>{}</b>%</li>
+                            </ul>
+                        </div>
+                        <div class="stats-subcategory"><h4>G3SG1:</h4>
+                            <ul>
+                                <li>Shots: <b>{:,}</b></li>
+                                <li>Hits: <b>{:,}</b></li>
+                                <li>Kills: <b>{:,}</b></li>
+                                <li>Fire accuracy: <b>{}</b>%</li>
+                            </ul>
+                        </div>
+                    </div>
+        
+                    <div class="stats-category"><h3>🔫 Heavy gun statistics:</h3>
+                        <div class="stats-subcategory"><h4>Nova:</h4>
+                            <ul>
+                                <li>Shots: <b>{:,}</b></li>
+                                <li>Hits: <b>{:,}</b></li>
+                                <li>Kills: <b>{:,}</b></li>
+                                <li>Fire accuracy: <b>{}</b>%</li>
+                            </ul>
+                        </div>
+                        <div class="stats-subcategory"><h4>MAG-7:</h4>
+                            <ul>
+                                <li>Shots: <b>{:,}</b></li>
+                                <li>Hits: <b>{:,}</b></li>
+                                <li>Kills: <b>{:,}</b></li>
+                                <li>Fire accuracy: <b>{}</b>%</li>
+                            </ul>
+                        </div>
+                        <div class="stats-subcategory"><h4>Sawed-Off:</h4>
+                            <ul>
+                                <li>Shots: <b>{:,}</b></li>
+                                <li>Hits: <b>{:,}</b></li>
+                                <li>Kills: <b>{:,}</b></li>
+                                <li>Fire accuracy: <b>{}</b>%</li>
+                            </ul>
+                        </div>
+                        <div class="stats-subcategory"><h4>XM1014:</h4>
+                            <ul>
+                                <li>Shots: <b>{:,}</b></li>
+                                <li>Hits: <b>{:,}</b></li>
+                                <li>Kills: <b>{:,}</b></li>
+                                <li>Fire accuracy: <b>{}</b>%</li>
+                            </ul>
+                        </div>
+                        <div class="stats-subcategory"><h4>Negev:</h4>
+                            <ul>
+                                <li>Shots: <b>{:,}</b></li>
+                                <li>Hits: <b>{:,}</b></li>
+                                <li>Kills: <b>{:,}</b></li>
+                                <li>Fire accuracy: <b>{}</b>%</li>
+                            </ul>
+                        </div>
+                        <div class="stats-subcategory"><h4>M249:</h4>
+                            <ul>
+                                <li>Shots: <b>{:,}</b></li>
+                                <li>Hits: <b>{:,}</b></li>
+                                <li>Kills: <b>{:,}</b></li>
+                                <li>Fire accuracy: <b>{}</b>%</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>""".format(*self.stats_only())

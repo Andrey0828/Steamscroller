@@ -3,19 +3,40 @@ header {
 }
 
 .logo {
-  margin-left: 10dvh;
+  margin-left: 10vh;
 }
 
 body {
-    background: #111213;
+    background-color: #111213;
 }
 
 .background {
   width: 100%;
   height: 100%;
-  background-repeat: repeat;
   overflow: hidden;
   transform: rotate(0deg);
+}
+
+.stats-container {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.stats-category {
+  display: flex;
+  flex-wrap: wrap;
+  flex: 25% 0 100%;
+  padding: 10px;
+}
+
+.stats-category h3 {
+  width: 100%;
+}
+
+.stats-subcategory {
+  flex: 25% 0 100%;
+  padding-left: 20px;
+  padding-right: 20px;
 }
 
 .background:before {
