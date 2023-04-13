@@ -1,48 +1,57 @@
 {% extends "base.html" %}
 
 {% block content %}
-<img src="{{ user.avatar }}" alt="Avatar can\'t be loaded...">
-<br>
-<br>
-<h4>Nickname: {{ user.nick }}</h4>
-{% if user.name %}
-    <h4>Real name*: {{ user.name }}</h4>
-{% endif %}
-{% if user.country %}
-    <h4>Country: {{ user.country }}</h4>
-{% endif %}
-{% if user.level %}
-    <h4>User level: {{ user.level }}</h4>
-{% endif %}
-{% if user.profile_created %}
-    <h4>Profile created: {{ user.profile_created }}</h4>
-{% endif %}
-{% if user.last_logoff %}
-    <h4>Last logoff: {{ user.last_logoff }}</h4>
-{% endif %}
-<form method="post">
-    <button type="submit" class="btn btn-dark" name="usergames">Games</button>
-</form>
-{% if user.bans.game_bans is not none %}
-    <h4>Game bans: {{ user.bans.game_bans if user.bans.game_bans else "No" }}</h4>
-{% endif %}
-{% if user.bans.community_ban is not none %}
-    <h4>Community ban: {{ "Yes" if community_ban else "No" }}</h4>
-{% endif %}
-{% if user.bans.vac_bans is not none %}
-    <h4>VAC bans: {{ user.bans.vac_bans if user.bans.vac_bans else "No" }}</h4>
-{% endif %}
-{% if user.bans.economy_ban is not none %}
-    <h4>Economy ban: {{ "Yes" if economy_ban else "No" }}</h4>
-{% endif %}
-{% if user.bans.game_bans or user.bans.vac_bans or user.bans.community_ban or user.bans.economy_ban %}
-    {% if user.bans.days_since_last_ban is not none %}
-        <h4>Days since last ban: {{ user.bans.days_since_last_ban }}</h4>
+<center>
+    <img src="{{ user.avatar }}" alt="Avatar can\'t be loaded...">
+    <br>
+    <br>
+    <h4>Nickname: {{ user.nick }}</h4>
+    {% if user.name %}
+        <h4>Real name*: {{ user.name }}</h4>
     {% endif %}
-{% endif %}
+    {% if user.country %}
+        <h4>Country: {{ user.country }}</h4>
+    {% endif %}
+    {% if user.level %}
+        <h4>User level: {{ user.level }}</h4>
+    {% endif %}
+    {% if user.profile_created %}
+        <h4>Profile created: {{ user.profile_created }}</h4>
+    {% endif %}
+    {% if user.last_logoff %}
+        <h4>Last logoff: {{ user.last_logoff }}</h4>
+    {% endif %}
+    <form method="post">
+        <button type="submit" class="btn btn-dark" name="usergames">Games</button>
+    </form>
+    {% if user.bans.game_bans is not none %}
+        <h4>Game bans: {{ user.bans.game_bans if user.bans.game_bans else "No" }}</h4>
+    {% endif %}
+    {% if user.bans.community_ban is not none %}
+        <h4>Community ban: {{ "Yes" if community_ban else "No" }}</h4>
+    {% endif %}
+    {% if user.bans.vac_bans is not none %}
+        <h4>VAC bans: {{ user.bans.vac_bans if user.bans.vac_bans else "No" }}</h4>
+    {% endif %}
+    {% if user.bans.economy_ban is not none %}
+        <h4>Economy ban: {{ "Yes" if economy_ban else "No" }}</h4>
+    {% endif %}
+    {% if user.bans.game_bans or user.bans.vac_bans or user.bans.community_ban or user.bans.economy_ban %}
+        {% if user.bans.days_since_last_ban is not none %}
+            <h4>Days since last ban: {{ user.bans.days_since_last_ban }}</h4>
+        {% endif %}
+    {% endif %}
 
-{% if user.name %}
-    <br><h4>* - User real name are defined by a user itself.</h4>
-{% endif %}
-
+    {% if user.name %}
+        <br><h4>* - User real name are defined by a user itself.</h4>
+    {% endif %}
+</center>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
 {% endblock %}

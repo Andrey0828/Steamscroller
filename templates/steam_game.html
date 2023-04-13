@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h2 align="center">{{ name }}</h2><br>
+<img align="center" src="{{ avatar_of_the_game }}" alt="Avatar can\'t be loaded...">
+<br>
+<br>
+<h4>Genres: {{ genres }}</h4>
+<h4>Developer: {{ developer }}</h4>
+<h4>Release date: {{ release_date }}</h4>
+<h4>Description of the game: </h4>
+<h5 style="text-indent: 35px;">{{ description_of_the_game }}</h5>
+<h4>Price: {{ price }}</h4>
+<h4>System requirements:</h4>
+{% for par in spisok_par %}
+    <ul>
+        <h5>
+            {{ par }}
+        </h5>
+    </ul>
+{% endfor %}
+{% if mode %}
+    <h4>Mode: {{ mode }}</h4>
+{% endif %}
+<center>
+    <video width="450" height="250" controls autoplay muted id="videoId">
+        <source src="{{ video }}" type="video/mp4"></video>
+{% for im in images[:5] %}
+    <br>
+    <img src="{{ im }}" width="770" height="475">
+    <br>
+{% endfor %}
+</center>
+{% endblock %}
