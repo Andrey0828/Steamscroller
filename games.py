@@ -162,10 +162,10 @@ class Appid730GameStats(NamedTuple):
 
         stats['total_time_played'] = round(stats["total_time_played"] / 3600, 2)
         stats['kd_ratio'] = round(stats['total_kills'] / stats['total_deaths'], 2)
-        stats['matches_win_percentage'] = round(stats['total_matches_won'] / stats['total_matches_played'],
+        stats['matches_win_percentage'] = round(stats['total_matches_won'] / stats['total_matches_played'] * 100,
                                                 2)
-        stats['hit_accuracy'] = round(stats['total_shots_hit'] / stats['total_shots_fired'], 2)
-        stats['headshots_percentage'] = round(stats['total_kills_headshot'] / stats['total_kills'], 2)
+        stats['hit_accuracy'] = round(stats['total_shots_hit'] / stats['total_shots_fired'] * 100, 2)
+        stats['headshots_percentage'] = round(stats['total_kills_headshot'] / stats['total_kills'] * 100, 2)
 
         best_map = max((stat for stat in stats if stat.startswith('total_wins_map_')),
                        key=lambda x: stats[x]).split('_')[-2:]
