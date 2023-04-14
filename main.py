@@ -9,7 +9,7 @@ import steamapi
 
 import config as cfg
 
-from flask import Flask, render_template, redirect, request, url_for
+from flask import Flask, render_template, redirect, request, url_for, abort
 
 TITLE = 'Steamscroller'
 app = Flask(__name__)
@@ -18,6 +18,16 @@ app.config['SECRET_KEY'] = cfg.FLASKAPP_SECRET_KEY
 
 
 steam_profile_link_pattern = re.compile(r'(?:https?://)?steamcommunity\.com/(?:profiles|id)/[a-zA-Z0-9]+(/?)\w')
+
+
+@app.errorhandler(500)
+def internal_server_error(e):
+    return render_template('500.html'), 500
+
+
+@app.errorhandler(501)
+def internal_server_error(e):
+    return render_template('501.html'), 501
 
 
 @app.route("/")
@@ -149,27 +159,35 @@ def steam_profile_vanity(vanityurl: str):
 
 @app.route("/profiles/<string:game_name>/")
 def search_game(game_name: str):
-    description, system = search_game_on_steam(game_name)
-    par = description.get("recommended_system_requirements")
-    if par is None:
-        par = description.get("minimum_system_requirements")
-    if "Processor" in par:
-        par = par.replace("Processor", "#Processor")
-    if "Memory" in par:
-        par = par.replace("Memory", "#Memory")
-    if "Graphics" in par:
-        par = par.replace("Graphics", "#Graphics")
-    if "Storage" in par:
-        par = par.replace("Storage", "#Storage")
-    if system == "window":
-        if "DirectX:" in par:
-            par = par.replace("DirectX:", "#DirectX:")
-    elif system == "linux":
-        if "Sound Card:" in par:
-            par = par.replace("Sound Card:", "#Sound Card:")
-    parametrs = par.split("#")
-    if description is not None:
+    try:
+        description, system = search_game_on_steam(game_name)
+        par = description.get("recommended_system_requirements")
+        if par is None:
+            par = description.get("minimum_system_requirements")
+        if "Processor" in par:
+            par = par.replace("Processor", "#Processor")
+        if "Memory" in par:
+            par = par.replace("Memory", "#Memory")
+        if "Graphics" in par:
+            par = par.replace("Graphics", "#Graphics")
+        if "Storage" in par:
+            par = par.replace("Storage", "#Storage")
+        if "Network" in par:
+            par = par.replace("Network", "#Network")
+        if system == "window":
+            if "DirectX:" in par:
+                par = par.replace("DirectX:", "#DirectX:")
+        elif system == "linux":
+            if "Sound Card:" in par:
+                par = par.replace("Sound Card:", "#Sound Card:")
+        parametrs = par.split("#")
         return render_template("steam_game.html", title=TITLE, **description, spisok_par=parametrs)
+    except ValueError:
+        description = search_game_on_steam(game_name)
+        if description == 'Игра не найдена':
+            abort(500)
+        elif description == 'Данный товар недоступен в вашем регионе':
+            abort(501)
 
 
 def main():
