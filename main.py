@@ -2,6 +2,7 @@ import datetime as dt
 import re
 from typing import NamedTuple
 
+import requests
 from steam.steamid import SteamID
 from country_name import search_country_by_name
 from game_search import search_game_on_steam
@@ -9,11 +10,10 @@ import steamapi
 
 import config as cfg
 
-from flask import Flask, render_template, redirect, request, url_for, abort
+from flask import Flask, render_template, redirect, request, url_for, abort, jsonify
 
 TITLE = 'Steamscroller'
 app = Flask(__name__)
-app.debug = True
 app.config['SECRET_KEY'] = cfg.FLASKAPP_SECRET_KEY
 
 
@@ -157,37 +157,62 @@ def steam_profile_vanity(vanityurl: str):
     return f'Error! Try again later. ({resolve_vanity["success"]})'
 
 
-@app.route("/profiles/<string:game_name>/")
-def search_game(game_name: str):
-    try:
-        description, system = search_game_on_steam(game_name)
-        par = description.get("recommended_system_requirements")
-        if par is None:
-            par = description.get("minimum_system_requirements")
-        if "Processor" in par:
-            par = par.replace("Processor", "#Processor")
-        if "Memory" in par:
-            par = par.replace("Memory", "#Memory")
-        if "Graphics" in par:
-            par = par.replace("Graphics", "#Graphics")
-        if "Storage" in par:
-            par = par.replace("Storage", "#Storage")
-        if "Network" in par:
-            par = par.replace("Network", "#Network")
-        if system == "window":
-            if "DirectX:" in par:
-                par = par.replace("DirectX:", "#DirectX:")
-        elif system == "linux":
-            if "Sound Card:" in par:
-                par = par.replace("Sound Card:", "#Sound Card:")
-        parametrs = par.split("#")
-        return render_template("steam_game.html", title=TITLE, **description, spisok_par=parametrs)
-    except ValueError:
-        description = search_game_on_steam(game_name)
-        if description == 'Игра не найдена':
-            abort(500)
-        elif description == 'Данный товар недоступен в вашем регионе':
-            abort(501)
+@app.route('/searchapp/<string:query>')
+def search_app(query: str):
+    return search_apps_by_name(query)
+
+
+@app.route("/app/<int:appid>/")
+def app_page(appid: int):
+    result = search_game_on_steam(appid)
+    if result == 'Игра не найдена':
+        return abort(500)
+    if result == 'Данный товар недоступен в вашем регионе':
+        return abort(501)
+
+    description, system = search_game_on_steam(appid)
+    par = description.get("recommended_system_requirements")
+    if par is None:
+        par = description.get("minimum_system_requirements")
+    if "Processor" in par:
+        par = par.replace("Processor", "#Processor")
+    if "Memory" in par:
+        par = par.replace("Memory", "#Memory")
+    if "Graphics" in par:
+        par = par.replace("Graphics", "#Graphics")
+    if "Storage" in par:
+        par = par.replace("Storage", "#Storage")
+    if "Network" in par:
+        par = par.replace("Network", "#Network")
+    if system == "windows":
+        if "DirectX:" in par:
+            par = par.replace("DirectX:", "#DirectX:")
+    elif system == "linux":
+        if "Sound Card:" in par:
+            par = par.replace("Sound Card:", "#Sound Card:")
+    parametrs = par.split("#")
+    return render_template("steam_game.html", title=f'{TITLE} :: {description["name"]}',
+                           **description, spisok_par=parametrs)
+
+
+@app.route("/livesearch", methods=["POST", "GET"])
+def livesearch():
+    query = request.form.get("query")
+    if query is None:
+        return redirect('/')
+    return search_apps_by_name(query)[:10]
+
+
+def search_apps_by_name(name: str):
+    requested_name = name.strip().lower()
+    response = requests.get('http://api.steampowered.com/ISteamApps/GetAppList/v0002/', params={'key': cfg.API_KEY})
+    if response.status_code != 200:
+        return f'Error! Try again later. ({response.status_code})'
+
+    apps = response.json()['applist']['apps']
+    results = (_app for _app in apps if requested_name in _app['name'].strip().lower())
+    results = sorted(results, key=lambda x: (x['name'].lower().index(requested_name), x['appid']))
+    return jsonify(results[:2000])
 
 
 def main():

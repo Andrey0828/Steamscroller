@@ -9,7 +9,7 @@ api_caller = WebAPI(key=cfg.API_KEY)
 
 def get_app_details(appid) -> dict | None:
     return requests.get('http://store.steampowered.com/api/appdetails/',
-                        params={'appids': str(appid), 'cc': 'en', 'l': 'en'}).json()
+                        params={'appids': str(appid), 'cc': 'en', 'l': 'en'}).json()[str(appid)]
 
 
 def get_friends(steamid) -> list | None:

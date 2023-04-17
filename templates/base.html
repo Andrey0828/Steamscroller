@@ -3,6 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
     <link rel="stylesheet"
           href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css"
           integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh"
@@ -11,20 +12,69 @@
     <title>{{ title }}</title>
 </head>
 <body>
-<header>
-    <nav class="navbar text-light shadow">
-        <div class="logo">
-            <h1>Steamscroller</h1>
-            <h6>Gotta go fast</h6>
-        </div>
-        <a class="navbar-brand text-light" href="#">CLICK</a>
-    </nav>
-</header>
-<!-- Begin page content -->
-<div class="background">
-    <main role="main" class="container text-light">
-        {% block content %}{% endblock %}
-    </main>
-</div>
+    <header>
+        <nav class="navbar">
+            <div class="logo">
+                <h1>Steamscroller</h1>
+                <h6>Gotta go fast</h6>
+            </div>
+            <div class="search">
+                <input type="text" class="searchbar livebar" placeholder="Search for Steam apps..." />
+                <div class="search-results"></div>
+            </div>
+            <a class="navbar-brand" href="#">CLICK</a>
+        </nav>
+    </header>
+    <!-- Begin page content -->
+    <div class="background">
+        <main role="main" class="container">
+            {% block content %}{% endblock %}
+        </main>
+    </div>
+    <footer>
+        <h6>Steamscroller is a educational project and is not affiliated with Valve or Steam.<br>
+            Steam and the Steam logo are trademarks of Valve Corporation. All other trademarks are property of their respective owners.</h6>
+    </footer>
 </body>
+<script>
+    $(document).ready(function() {
+        var timer;
+
+        function loadSearchResults(query) {
+            $.ajax({
+                method: "POST",
+                url: "/livesearch",
+                data: {query: query},
+                success: function(data) {
+                    displayedResults = '';
+                    $.each(data, function(index, app) {
+                        displayedResults += `<div onclick="location.href='/app/${app.appid}'">${app.name}</div>`;
+                    });
+                    $(".search-results").html(displayedResults);
+                }
+            });
+        }
+
+        function lookup() {
+            query = $(".livebar").val();
+            if (query.length == 0) {
+                $(".search-results").empty()
+                return;
+            }
+            loadSearchResults(query);
+        }
+
+        $(".livebar").on("input", function(e) {
+            clearTimeout(timer);
+            var ms = 500; // milliseconds
+            timer = setTimeout(lookup, ms);
+        });
+
+        $(".livebar").on("keydown",function search(e) {
+            if(e.keyCode == 13) {  // pressing Enter
+                window.location.href = `/search/${$(".livebar").val()}`
+            }
+        });
+    });
+</script>
 </html>

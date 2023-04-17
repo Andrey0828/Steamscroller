@@ -1,31 +1,119 @@
-header {
-  background-color: #151617;
+:root {
+  --header-background-color: #151617;
+  --anim-background-color: #111213;
+  --searchbar-background-color: #212223;
+  --container-color: rgba(11, 12, 13, 0.8);
+  --anim-background-stripes-color: rgba(0, 128, 128, 0.5);
+  --anim-background-elem-size: 5rem;
+  --anim-background-elem-shift: calc(var(--anim-background-elem-size) / 2);
+  --background-oversize: 5000rem;
 }
 
-.logo {
-  margin-left: 10vh;
+html {
+  min-height: 100vh;
 }
 
 body {
-    background-color: #111213;
+  display: flex;
+  flex-direction: column;
+  background-color: var(--anim-background-color);
+  color: white;
+  min-height: 100vh;
+}
+
+header, footer {
+  background-color: var(--header-background-color);
+}
+
+header {
+  flex: none;
+}
+
+nav {
+  margin-left: 10vh;
+}
+
+nav > a {
+  color: white;
 }
 
 .background {
-  width: 100%;
-  height: 100%;
+  display: flex;
+  flex-grow: 1;
+  position: relative;
   overflow: hidden;
-  transform: rotate(0deg);
 }
 
-.stats-container {
+.livebar {
+  background-color: var(--searchbar-background-color);
+  color: inherit;
+}
+
+.search-results {
+  position: fixed;
+  background-color: var(--searchbar-background-color);
+  transform: translateX(-25%);
+  z-index: 50;
+}
+
+.search-results > div {
+  padding-left: 5px;
+  border: 1px solid var(--header-background-color);
+}
+
+.background::before {
+  content: "";
+  position: absolute;
+  --background-shift: calc(0px - calc(calc(var(--background-oversize) - 100%) / 2));
+  width: var(--background-oversize);
+  height: var(--background-oversize);
+  top: var(--background-shift);
+  left: var(--background-shift);
+  z-index: -1;
+
+  background-image: radial-gradient(
+      circle at 100% 50%,
+      transparent 20%,
+      var(--anim-background-stripes-color) 21%,
+      var(--anim-background-stripes-color) 32%,
+      transparent 33%
+    ),
+    radial-gradient(
+      circle at 0% 50%,
+      transparent 20%,
+      var(--anim-background-stripes-color) 21%,
+      var(--anim-background-stripes-color) 32%,
+      transparent 33%
+    );
+  background-size: 4rem var(--anim-background-elem-size);
+  background-position: 0 0, 0 var(--anim-background-elem-shift);
+  transform: rotate(30deg);
+  animation: animatedBackground 1000s linear infinite;
+}
+
+@keyframes animatedBackground {
+  to {
+    background-position: 0 -10000px, 0 calc(var(--anim-background-elem-shift) - 10000px);
+  }
+}
+
+.container {
+  min-height: 100%;
+  padding: 15px 40px;
+  background-color: var(--container-color);
+  backdrop-filter: blur(6px);
+}
+
+.stats-container, .stats-category {
   display: flex;
   flex-wrap: wrap;
+}
+
+.stats-category, .stats-subcategory {
+  flex: 25% 0 100%;
 }
 
 .stats-category {
-  display: flex;
-  flex-wrap: wrap;
-  flex: 25% 0 100%;
   padding: 10px;
 }
 
@@ -34,77 +122,13 @@ body {
 }
 
 .stats-subcategory {
-  flex: 25% 0 100%;
-  padding-left: 20px;
-  padding-right: 20px;
+  padding: 20px;
 }
 
-.background:before {
-    content: "";
-    position: absolute;
-    width: 1000%;
-    height: 1000%;
-    top: -450%;
-    left: -450%;
-    z-index: -1;
-
-    background-image: radial-gradient(
-        circle at 100% 50%,
-        transparent 1rem,
-        rgba(0, 128, 128, 0.5) 1rem,
-        rgba(0, 128, 128, 0.5) 1.5rem,
-        transparent 1.5rem
-      ),
-      radial-gradient(
-        circle at 0% 50%,
-        transparent 1rem,
-        rgba(0, 128, 128, 0.5) 1rem,
-        rgba(0, 128, 128, 0.5) 1.5rem,
-        transparent 1.5rem
-      );
-    background-size: 4rem 5rem;
-    background-position: 0 0, 0 2.5rem;
-    transform: rotate(30deg);
-    animation: animatedBackground 1000s linear infinite;
+footer {
+  padding: 15px 10vh;
 }
 
-@keyframes animatedBackground {
-  from {
-    background-position: 0 0, 0 2.5rem;
-  }
-  to {
-    background-position: 0 -10000px;
-  }
-}
-
-.container {
-  height: 100%;
-  padding: 15px 40px;
-  background-color: rgba(11, 12, 13, 0.8);
-  backdrop-filter: blur(6px);
-}
-
-@keyframes animatedBackground {
-  from {
-    background-position: 0 0, 0 2.5rem;
-  }
-  to {
-    background-position: 0 -10000px, 0 calc(2.5rem - 10000px);
-  }
-}
-.mp4 {
-    position: relative;
-    padding-bottom: 56.25%; /* 16:9 */
-    padding-top: 0px;
-    height: 0;
-}
-.mp4 video {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-}
-.text {
-    font-size: 20px
+footer > h6 {
+  font-size: 0.7rem;
 }
