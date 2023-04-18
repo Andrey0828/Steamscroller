@@ -167,8 +167,6 @@ def app_page(appid: int):
     result = search_game_on_steam(appid)
     if result == 'Игра не найдена':
         return abort(500)
-    if result == 'Данный товар недоступен в вашем регионе':
-        return abort(501)
 
     description, system = search_game_on_steam(appid)
     par = description.get("recommended_system_requirements")
@@ -212,7 +210,7 @@ def search_apps_by_name(name: str):
     apps = response.json()['applist']['apps']
     results = (_app for _app in apps if requested_name in _app['name'].strip().lower())
     results = sorted(results, key=lambda x: (x['name'].lower().index(requested_name), x['appid']))
-    return jsonify(results[:2000])
+    return results[:2000]
 
 
 def main():
