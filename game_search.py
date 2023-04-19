@@ -58,7 +58,7 @@ def search_game_on_steam(app_id):
     if game_info['categories']:
         about_game['categories'] = game_info['categories']
 
-    if game_info['movies']:
+    if game_info.get('movies') is not None:
         about_game['movies'] = []
         for movie in game_info['movies']:
             if movie.get('mp4'):
