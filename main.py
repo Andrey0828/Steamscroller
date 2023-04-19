@@ -154,7 +154,8 @@ def steam_profile_vanity(vanityurl: str):
 
 @app.route('/searchapp/<string:query>')
 def search_app(query: str):
-    return search_apps_by_name(query)
+    return render_template("search_pages/search_app.html", title=f'{TITLE} :: Searching "{query}"',
+                           results=search_apps_by_name(query))
 
 
 @app.route("/app/<int:appid>/")
@@ -176,7 +177,12 @@ def livesearch():
     query = request.form.get("query")
     if query is None:
         return redirect('/')
-    return search_apps_by_name(query)[:10]
+
+    results = search_apps_by_name(query)
+    if len(results) > 10:
+        results = results[:10]
+        results.append('<see all>')
+    return results
 
 
 def search_apps_by_name(name: str):

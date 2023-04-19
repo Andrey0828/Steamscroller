@@ -19,8 +19,8 @@
                 <h6>Gotta go fast</h6>
             </div>
             <div class="search">
-                <input type="text" class="searchbar livebar" style="width: 300px" placeholder="Search for Steam apps..." />
-                <div class="search-results"></div>
+                <input type="text" class="searchbar" id="searchbar-live" placeholder="Search for Steam apps..." />
+                <div class="search-results" id="search-results-live"></div>
             </div>
             <a class="navbar-brand" href="#">CLICK</a>
         </nav>
@@ -48,31 +48,35 @@
                 success: function(data) {
                     displayedResults = '';
                     $.each(data, function(index, app) {
-                        displayedResults += `<div onclick="location.href='/app/${app.appid}'">${app.name}</div>`;
+                        if (app == '<see all>') {
+                            displayedResults += `<a href='/searchapp/${query}'>...</a>`;
+                        } else {
+                            displayedResults += `<a href='/app/${app.appid}'>${app.name}</a>`;
+                        }
                     });
-                    $(".search-results").html(displayedResults);
+                    $("#search-results-live").html(displayedResults);
                 }
             });
         }
 
         function lookup() {
-            query = $(".livebar").val();
+            query = $("#searchbar-live").val();
             if (query.length == 0) {
-                $(".search-results").empty()
+                $("#search-results-live").empty()
                 return;
             }
             loadSearchResults(query);
         }
 
-        $(".livebar").on("input", function(e) {
+        $("#searchbar-live").on("input", function(e) {
             clearTimeout(timer);
             var ms = 500; // milliseconds
             timer = setTimeout(lookup, ms);
         });
 
-        $(".livebar").on("keydown",function search(e) {
+        $("#searchbar-live").on("keydown",function search(e) {
             if(e.keyCode == 13) {  // pressing Enter
-                window.location.href = `/searchapp/${$(".livebar").val()}`
+                window.location.href = `/searchapp/${$("#searchbar-live").val()}`
             }
         });
     });

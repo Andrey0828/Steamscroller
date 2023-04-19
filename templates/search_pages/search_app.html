@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h4>{{ results|length }} results</h4>
+<div class="search-results">
+{% for result in results %}
+    <a href='/app/{{ result["appid"] }}'>{{ result["name"] }}</a>
+{% endfor %}
+</div>
+{% endblock %}
