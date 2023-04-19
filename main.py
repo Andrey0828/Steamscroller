@@ -22,12 +22,7 @@ steam_profile_link_pattern = re.compile(r'(?:https?://)?steamcommunity\.com/(?:p
 
 @app.errorhandler(500)
 def internal_server_error(e):
-    return render_template('500.html'), 500
-
-
-@app.errorhandler(501)
-def internal_server_error(e):
-    return render_template('501.html'), 501
+    return render_template('404.html'), 404
 
 
 @app.route("/")
@@ -165,37 +160,15 @@ def search_app(query: str):
 @app.route("/app/<int:appid>/")
 def app_page(appid: int):
     result = search_game_on_steam(appid)
-    if result == 'Игра не найдена':
-        return abort(500)
-    if search_game_on_steam(appid) == "Данный товар недоступен в вашем регионе":
-        return abort(501)
-    if search_game_on_steam(appid) == "Игра не найдена":
-        return abort(500)
-    description, system = search_game_on_steam(appid)
-    par = description.get("recommended_system_requirements")
-    parametrs = ''
-    if par is None:
-        par = description.get("minimum_system_requirements")
-    if par is not None:
-        if "Processor" in par:
-            par = par.replace("Processor", "#Processor")
-        if "Memory" in par:
-            par = par.replace("Memory", "#Memory")
-        if "Graphics" in par:
-            par = par.replace("Graphics", "#Graphics")
-        if "Storage" in par:
-            par = par.replace("Storage", "#Storage")
-        if "Network" in par:
-            par = par.replace("Network", "#Network")
-        if system == "windows":
-            if "DirectX:" in par:
-                par = par.replace("DirectX:", "#DirectX:")
-        elif system == "linux":
-            if "Sound Card:" in par:
-                par = par.replace("Sound Card:", "#Sound Card:")
-        parametrs = par.split("#")
-    return render_template("steam_game.html", title=f'{TITLE} :: {description["name"]}',
-                           **description, spisok_par=parametrs)
+    if result == 'not found':
+        return abort(404)
+
+    result['developers'] = ', '.join(result['developers'])
+    result['genres'] = ', '.join(genre['description'] for genre in result['genres'])
+    result['categories'] = ', '.join(genre['description'] for genre in result['categories'])
+    if result['price'] == 0:
+        result['price'] = 'free'
+    return render_template("steam_app.html", title=f'{TITLE} :: {result["name"]}', **result)
 
 
 @app.route("/livesearch", methods=["POST", "GET"])

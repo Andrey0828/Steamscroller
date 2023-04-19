@@ -1,0 +1,85 @@
+{% extends "base.html" %}
+
+{% block content %}
+<script src="{{ url_for('static', filename='js/tabs.js') }}"></script>
+
+<h2 class="text-centered">{{ name }}</h2><br>
+<img class="centered" src="{{ header_image }}" alt="Image can\'t be loaded...">
+<br>
+<iframe class="centered" src="https://store.steampowered.com/widget/{{ appid }}/" frameborder="0" width="646" height="190"></iframe>
+<br>
+<br>
+<h4>Genres: <span class="text">{{ genres }}</span></h4>
+{% if categories %}
+    <h4>Categories: <span class="text">{{ categories }}</span></h4>
+{% endif %}
+<h4>Developer: <span class="text">{{ developers }}</span></h4>
+<h4>Release date: <span class="text">{{ release_date }}</span></h4>
+<h4>Game desctiption: <br> <span class="text">{{ detailed_description|safe }}</span></h4>
+<br>
+<h4>System requirements:</h4>
+{% if pc_requirements or mac_requirements or linux_requirements %}
+    <div class="tab">
+        {% if pc_requirements %}
+        <button class="tablinks" onclick="openTab(event, 'app-win-requirements')">Windows</button>
+        {% endif %}
+        {% if mac_requirements %}
+        <button class="tablinks" onclick="openTab(event, 'app-mac-requirements')">MacOS</button>
+        {% endif %}
+        {% if linux_requirements %}
+        <button class="tablinks" onclick="openTab(event, 'app-linux-requirements')">Linux</button>
+        {% endif %}
+    </div>
+
+    {% if pc_requirements %}
+    <div id="app-win-requirements" class="tabcontent">
+        {% if pc_requirements.get('minimum') %}
+            {{ pc_requirements['minimum']|safe }}
+        {% endif %}
+        {% if pc_requirements.get('recommended') %}
+            {{ pc_requirements['recommended']|safe }}
+        {% endif %}
+    </div>
+    {% endif %}
+
+    {% if mac_requirements %}
+    <div id="app-mac-requirements" class="tabcontent">
+        {% if mac_requirements.get('minimum') %}
+            {{ mac_requirements['minimum']|safe }}
+        {% endif %}
+        {% if mac_requirements.get('recommended') %}
+            {{ mac_requirements['recommended']|safe }}
+        {% endif %}
+    </div>
+    {% endif %}
+
+    {% if linux_requirements %}
+    <div id="app-linux-requirements" class="tabcontent">
+        {% if linux_requirements.get('minimum') %}
+            {{ linux_requirements['minimum']|safe }}
+        {% endif %}
+        {% if linux_requirements.get('recommended') %}
+            {{ linux_requirements['recommended']|safe }}
+        {% endif %}
+    </div>
+    {% endif %}
+{% else %}
+    <span class="text">unknown :(</span>
+{% endif %}
+{% for movie in movies[:5] %}
+    <div class="mp4 centered">
+        <video controls muted id="videoId">
+            {% if movie.endswith('.mp4') %}
+                <source src="{{ movie }}" type="video/mp4"></video>
+            {% else %}
+                <source src="{{ movie }}" type="video/webm"></video>
+            {% endif %}
+    </div>
+{% endfor %}
+{% for im in images[:5] %}
+    <br>
+    <img class="centered" src="{{ im }}">
+    <br>
+{% endfor %}
+
+{% endblock %}

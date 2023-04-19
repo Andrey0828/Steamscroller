@@ -2,6 +2,12 @@
   --header-background-color: #151617;
   --anim-background-color: #111213;
   --searchbar-background-color: #212223;
+
+  --tabs-button-background-color: #151617;
+  --tabs-button-hover-background-color: #212223;
+  --tabs-button-active-background-color: #303132;
+  --tabs-border: 1px solid #ccc;
+
   --container-color: rgba(11, 12, 13, 0.8);
   --anim-background-stripes-color: rgba(0, 128, 128, 0.5);
   --anim-background-elem-size: 5rem;
@@ -132,18 +138,69 @@ footer {
 footer > h6 {
   font-size: 0.7rem;
 }
-.mp4 {
-    position: relative;
-    padding-bottom: 56.25%;
-    padding-top: 0px;
-    height: 0;
+
+.text-centered {
+  text-align: center
 }
+
+.centered {
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+  width: 50%;
+}
+
 .mp4 video {
-    position: absolute;
-    top: 0;
-    left: 0;
     width: 100%;
     height: 100%;
 }
+
 .text {
     font-size: 20px
+}
+
+/* Style the tab */
+.tab {
+  overflow: hidden;
+  border: var(--tabs-border);
+  background-color: var(--tabs-button-background-color);
+}
+
+/* Style the buttons inside the tab */
+.tab button {
+  color: white;
+  background-color: inherit;
+  float: left;
+  border: none;
+  outline: none;
+  cursor: pointer;
+  padding: 14px 16px;
+  transition: 0.3s;
+  font-size: 17px;
+}
+
+/* Change background color of buttons on hover */
+.tab button:hover {
+  background-color: var(--tabs-button-hover-background-color);
+}
+
+/* Create an active/current tablink class */
+.tab button.active {
+  background-color: var(--tabs-button-active-background-color);
+}
+
+/* Style the tab content */
+.tabcontent {
+  display: none;
+  padding: 6px 12px;
+  border: var(--tabs-border);
+  border-top: none;
+  transform-origin: top;
+  animation: animatedTab 0.1s linear;
+}
+
+@keyframes animatedTab {
+  from {
+    transform: scale(1, 0);
+  }
+}

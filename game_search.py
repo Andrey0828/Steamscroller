@@ -1,77 +1,74 @@
 import requests
-from bs4 import BeautifulSoup
-from sys import platform
 
 
 def search_game_on_steam(app_id):
     about_game = {}
-    os = None
 
     response = requests.get('https://store.steampowered.com/api/appdetails',
                             params={'appids': app_id, 'cc': 'en', 'l': 'ru', 'format': 'json'})
 
     if response.status_code != 200:
-        return 'Игра не найдена'
+        return 'not found'
 
     game_info = response.json()[str(app_id)]
 
-    if not game_info["success"]:
-        return 'Данный товар недоступен в вашем регионе'
+    if game_info["success"] is False:
+        return 'not found'
 
     game_info = game_info['data']
-    try:
-        about_game["avatar_of_the_game"] = game_info['header_image']
-        about_game["name"] = game_info['name']
-        about_game["genres"] = ', '.join([genre['description'] for genre in game_info['genres']])
-        about_game["developer"] = ', '.join(game_info['developers'])
-        about_game["release_date"] = game_info['release_date']['date']
-        about_game["description_of_the_game"] = BeautifulSoup(game_info['detailed_description'], 'lxml').get_text()
-        try:
-            about_game["price"] = game_info['price_overview']['final_formatted']
-        except KeyError:
-            if game_info["is_free"]:
-                about_game["price"] = "бесплатно"
-            else:
-                about_game["price"] = 'неизвестно :('
-        if platform == "linux" or platform == "linux2":
-            os = "linux"
-            if len(game_info["linux_requirements"]) != 0:
-                try:
-                    par = BeautifulSoup(game_info['linux_requirements']['recommended'], 'lxml').get_text()
-                    about_game["recommended_system_requirements"] = par[par.find(':') + 1:]
-                except KeyError:
-                    par = BeautifulSoup(game_info['linux_requirements']['minimum'], 'lxml').get_text()
-                    about_game["minimum_system_requirements"] = par[par.find(':') + 1:]
-        elif platform == "darwin":
-            os = "mac"
-            if len(game_info["mac_requirements"]) != 0:
-                try:
-                    par = BeautifulSoup(game_info['mac_requirements']['recommended'], 'lxml').get_text()
-                    about_game["recommended_system_requirements"] = par[par.find(':') + 1:]
-                except KeyError:
-                    par = BeautifulSoup(game_info['mac_requirements']['minimum'], 'lxml').get_text()
-                    about_game["minimum_system_requirements"] = par[par.find(':') + 1:]
-        elif platform == "win32" or platform == "win64":
-            os = "windows"
-            if len(game_info["pc_requirements"]) != 0:
-                try:
-                    par = BeautifulSoup(game_info['pc_requirements']['recommended'], 'lxml').get_text()
-                    about_game["recommended_system_requirements"] = par[par.find(':') + 1:]
-                except KeyError:
-                    par = BeautifulSoup(game_info['pc_requirements']['minimum'], 'lxml').get_text()
-                    about_game["minimum_system_requirements"] = par[par.find(':') + 1:]
-        if game_info['categories'][0].get('description') is not None:
-            about_game["mode"] = game_info['categories'][0]['description']
-        try:
-            if game_info['movies'][0]['mp4'].get('max') is not None:
-                about_game["video"] = game_info['movies'][0]['mp4']['max']
-        except KeyError:
-            pass
-        about_game["background"] = game_info['background_raw']
-        about_game["images"] = []
-        for i in game_info["screenshots"]:
-            about_game["images"].append(i["path_full"])
-        return about_game, os
-    except Exception:
-        return 'Игра не найдена'
+    about_game['header_image'] = game_info['header_image']
+    about_game['appid'] = game_info['steam_appid']
+    about_game['name'] = game_info['name']
+    about_game['genres'] = game_info['genres']
+    about_game['developers'] = game_info['developers']
+    about_game["release_date"] = game_info['release_date']['date']
+    about_game['detailed_description'] = game_info['detailed_description']
+    if game_info['is_free']:
+        about_game["price"] = 0
+    else:
+        about_game["price"] = game_info['price_overview']['final_formatted']
 
+    about_game['pc_requirements'] = {}
+    if isinstance(game_info['pc_requirements'], list):
+        about_game['pc_requirements']['minimum'] = game_info['pc_requirements']
+    else:
+        if game_info['pc_requirements'].get('minimum'):
+            about_game['pc_requirements']['minimum'] = game_info['pc_requirements']['minimum']
+        if game_info['pc_requirements'].get('recommended'):
+            about_game['pc_requirements']['recommended'] = game_info['pc_requirements']['recommended']
+
+    about_game['mac_requirements'] = {}
+    if isinstance(game_info['mac_requirements'], list):
+        about_game['mac_requirements']['minimum'] = game_info['mac_requirements']
+    else:
+        if game_info['mac_requirements'].get('minimum'):
+            about_game['mac_requirements']['minimum'] = game_info['mac_requirements']['minimum']
+        if game_info['mac_requirements'].get('recommended'):
+            about_game['mac_requirements']['recommended'] = game_info['mac_requirements']['recommended']
+
+    about_game['linux_requirements'] = {}
+    if isinstance(game_info['linux_requirements'], list):
+        about_game['linux_requirements']['minimum'] = game_info['linux_requirements']
+    else:
+        if game_info['linux_requirements'].get('minimum'):
+            about_game['linux_requirements']['minimum'] = game_info['linux_requirements']['minimum']
+        if game_info['linux_requirements'].get('recommended'):
+            about_game['linux_requirements']['recommended'] = game_info['linux_requirements']['recommended']
+
+    if game_info['categories']:
+        about_game['categories'] = game_info['categories']
+
+    if game_info['movies']:
+        about_game['movies'] = []
+        for movie in game_info['movies']:
+            if movie.get('mp4'):
+                about_game['movies'].append(movie['mp4'][list(movie['mp4'])[-1]])
+            elif movie.get('webm'):
+                about_game['movies'].append(movie['webm'][list(movie['webm'])[-1]])
+
+    about_game['background_raw'] = game_info['background_raw']
+    about_game['images'] = []
+    for img in game_info['screenshots']:
+        about_game['images'].append(img['path_full'])
+
+    return about_game
