@@ -26,7 +26,10 @@ def search_game_on_steam(app_id):
     if game_info['is_free']:
         about_game["price"] = 0
     else:
-        about_game["price"] = game_info['price_overview']['final_formatted']
+        try:
+            about_game["price"] = game_info['price_overview']['final_formatted']
+        except KeyError:
+            about_game["price"] = "unknown :("
 
     about_game['pc_requirements'] = {}
     if isinstance(game_info['pc_requirements'], list):
