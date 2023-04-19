@@ -74,17 +74,19 @@
                 {% if loop.first %}
                     <video controls autoplay muted id="videoId1">
                         {% if movie.endswith('.mp4') %}
-                            <source src="{{ movie }}" type="video/mp4"></video>
+                            <source src="{{ movie }}" type="video/mp4">
                         {% else %}
-                            <source src="{{ movie }}" type="video/webm"></video>
+                            <source src="{{ movie }}" type="video/webm">
                         {% endif %}
+                    </video>
                 {% else %}
                     <video controls muted id="videoId2">
                         {% if movie.endswith('.mp4') %}
-                            <source src="{{ movie }}" type="video/mp4"></video>
+                            <source src="{{ movie }}" type="video/mp4">
                         {% else %}
-                            <source src="{{ movie }}" type="video/webm"></video>
+                            <source src="{{ movie }}" type="video/webm">
                         {% endif %}
+                    </video>
                 {% endif %}
             </div>
         {% endfor %}
