@@ -20,8 +20,8 @@ app.config['SECRET_KEY'] = cfg.FLASKAPP_SECRET_KEY
 steam_profile_link_pattern = re.compile(r'(?:https?://)?steamcommunity\.com/(?:profiles|id)/[a-zA-Z0-9]+(/?)\w')
 
 
-@app.errorhandler(500)
-def internal_server_error(e):
+@app.errorhandler(404)
+def page_not_found(_):
     return render_template('404.html'), 404
 
 
