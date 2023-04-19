@@ -66,14 +66,16 @@
 {% else %}
     <span class="text">unknown :(</span>
 {% endif %}
+
 {% for movie in movies[:5] %}
     <div class="mp4 centered">
         <video controls muted id="videoId">
             {% if movie.endswith('.mp4') %}
-                <source src="{{ movie }}" type="video/mp4"></video>
+                <source src="{{ movie }}" type="video/mp4">
             {% else %}
-                <source src="{{ movie }}" type="video/webm"></video>
+                <source src="{{ movie }}" type="video/webm">
             {% endif %}
+        </video>
     </div>
 {% endfor %}
 {% for im in images[:5] %}
