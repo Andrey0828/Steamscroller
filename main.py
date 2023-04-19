@@ -10,7 +10,7 @@ import steamapi
 
 import config as cfg
 
-from flask import Flask, render_template, redirect, request, url_for, abort, jsonify
+from flask import Flask, render_template, redirect, request, url_for, abort
 
 TITLE = 'Steamscroller'
 app = Flask(__name__)
@@ -167,28 +167,33 @@ def app_page(appid: int):
     result = search_game_on_steam(appid)
     if result == 'Игра не найдена':
         return abort(500)
-
+    if search_game_on_steam(appid) == "Данный товар недоступен в вашем регионе":
+        return abort(501)
+    if search_game_on_steam(appid) == "Игра не найдена":
+        return abort(500)
     description, system = search_game_on_steam(appid)
     par = description.get("recommended_system_requirements")
+    parametrs = ''
     if par is None:
         par = description.get("minimum_system_requirements")
-    if "Processor" in par:
-        par = par.replace("Processor", "#Processor")
-    if "Memory" in par:
-        par = par.replace("Memory", "#Memory")
-    if "Graphics" in par:
-        par = par.replace("Graphics", "#Graphics")
-    if "Storage" in par:
-        par = par.replace("Storage", "#Storage")
-    if "Network" in par:
-        par = par.replace("Network", "#Network")
-    if system == "windows":
-        if "DirectX:" in par:
-            par = par.replace("DirectX:", "#DirectX:")
-    elif system == "linux":
-        if "Sound Card:" in par:
-            par = par.replace("Sound Card:", "#Sound Card:")
-    parametrs = par.split("#")
+    if par is not None:
+        if "Processor" in par:
+            par = par.replace("Processor", "#Processor")
+        if "Memory" in par:
+            par = par.replace("Memory", "#Memory")
+        if "Graphics" in par:
+            par = par.replace("Graphics", "#Graphics")
+        if "Storage" in par:
+            par = par.replace("Storage", "#Storage")
+        if "Network" in par:
+            par = par.replace("Network", "#Network")
+        if system == "windows":
+            if "DirectX:" in par:
+                par = par.replace("DirectX:", "#DirectX:")
+        elif system == "linux":
+            if "Sound Card:" in par:
+                par = par.replace("Sound Card:", "#Sound Card:")
+        parametrs = par.split("#")
     return render_template("steam_game.html", title=f'{TITLE} :: {description["name"]}',
                            **description, spisok_par=parametrs)
 
@@ -203,7 +208,8 @@ def livesearch():
 
 def search_apps_by_name(name: str):
     requested_name = name.strip().lower()
-    response = requests.get('http://api.steampowered.com/ISteamApps/GetAppList/v0002/', params={'key': cfg.API_KEY})
+    response = requests.get('http://api.steampowered.com/ISteamApps/GetAppList/v0002/?type=game',
+                            params={'key': cfg.API_KEY})
     if response.status_code != 200:
         return f'Error! Try again later. ({response.status_code})'
 

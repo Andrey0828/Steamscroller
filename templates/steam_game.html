@@ -10,7 +10,9 @@
 <h4>Release date: <span class="text">{{ release_date }}</span></h4>
 <h4>Description of the game: <span class="text">{{ description_of_the_game }}</span></h4>
 <h4>Price: <span class="text">{{ price }}</span></h4>
-<h4>Minimum system requirements:</h4>
+{% if spisok_par %}
+    <h4>Minimum system requirements:</h4>
+{% endif %}
 {% for par in spisok_par %}
     <ul>
         <h5>

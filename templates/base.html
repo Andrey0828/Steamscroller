@@ -19,7 +19,7 @@
                 <h6>Gotta go fast</h6>
             </div>
             <div class="search">
-                <input type="text" class="searchbar livebar" placeholder="Search for Steam apps..." />
+                <input type="text" class="searchbar livebar" style="width: 300px" placeholder="Search for Steam apps..." />
                 <div class="search-results"></div>
             </div>
             <a class="navbar-brand" href="#">CLICK</a>
@@ -72,7 +72,7 @@
 
         $(".livebar").on("keydown",function search(e) {
             if(e.keyCode == 13) {  // pressing Enter
-                window.location.href = `/search/${$(".livebar").val()}`
+                window.location.href = `/searchapp/${$(".livebar").val()}`
             }
         });
     });
