@@ -12,7 +12,7 @@ def search_game_on_steam(app_id):
 
     game_info = response.json()[str(app_id)]
 
-    if game_info["success"] is False:
+    if game_info['success'] is False:
         return 'not found'
 
     game_info = game_info['data']
@@ -55,11 +55,11 @@ def search_game_on_steam(app_id):
         if game_info['linux_requirements'].get('recommended'):
             about_game['linux_requirements']['recommended'] = game_info['linux_requirements']['recommended']
 
-    if game_info['categories']:
+    if game_info.get('categories'):
         about_game['categories'] = game_info['categories']
 
-    if game_info.get('movies') is not None:
-        about_game['movies'] = []
+    about_game['movies'] = []
+    if game_info.get('movies'):
         for movie in game_info['movies']:
             if movie.get('mp4'):
                 about_game['movies'].append(movie['mp4'][list(movie['mp4'])[-1]])
