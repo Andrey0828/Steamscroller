@@ -22,12 +22,15 @@ def get_friends(steamid) -> list | None:
 
 
 def get_games(steamid) -> list | None:
-    games_request = api_caller.IPlayerService.GetOwnedGames(steamid=steamid, include_appinfo=True,
-                                                            include_played_free_games=True, appids_filter=None,
-                                                            include_free_sub=False, language='en',
-                                                            include_extended_appinfo=False)
-    if games_request:
-        return games_request['response']['games']
+    try:
+        games_request = api_caller.IPlayerService.GetOwnedGames(steamid=steamid, include_appinfo=True,
+                                                                include_played_free_games=True, appids_filter=None,
+                                                                include_free_sub=False, language='en',
+                                                                include_extended_appinfo=False)
+        if games_request and games_request.get('response'):
+            return games_request['response']['games']
+    except ConnectionError:
+        return
 
 
 def get_730_stats(steamid) -> Appid730GameStats | None:

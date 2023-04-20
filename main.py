@@ -90,7 +90,7 @@ def steam_profile(steamid: int):
         return 'User not found.'
 
     user = player_request[0]
-    level = steamapi.api_caller.IPlayerService.GetSteamLevel(steamid=steamid)['response']['player_level']
+    level = steamapi.api_caller.IPlayerService.GetSteamLevel(steamid=steamid)['response'].get('player_level')
 
     class Bans(NamedTuple):
         community_ban: bool
@@ -115,7 +115,9 @@ def steam_profile(steamid: int):
     country = user.get('loccountrycode')
     if country:
         country = search_country_by_name(country).name
-    profile_created = dt.datetime.fromtimestamp(user['timecreated']).strftime('%A, %d %B %Y, %H:%M:%S')
+    profile_created = user.get('timecreated')
+    if profile_created:
+        profile_created = dt.datetime.fromtimestamp(profile_created).strftime('%A, %d %B %Y, %H:%M:%S')
     last_logoff = user.get('lastlogoff')
     if last_logoff:
         last_logoff = dt.datetime.fromtimestamp(last_logoff).strftime('%A, %d %B %Y, %H:%M:%S')

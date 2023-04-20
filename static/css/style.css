@@ -59,7 +59,7 @@ nav > a {
 #search-results-live {
   position: fixed;
   background-color: var(--searchbar-background-color);
-  transform: translateX(-25%);
+  width: 300px;
   z-index: 50;
 }
 
