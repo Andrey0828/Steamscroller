@@ -14,7 +14,7 @@ def check(email):
 
 def send_email(email, message):
     sender = "steamscroller@yandex.ru"
-    password = "Y^X5VIFtJX3+-URl+7@udZ6o"
+    password = "nxesvojaqoaaebrj"
 
     server = smtplib.SMTP("smtp.yandex.ru", 587)
     server.starttls()
