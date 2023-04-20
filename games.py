@@ -155,7 +155,7 @@ class Appid730GameStats(NamedTuple):
 
     @classmethod
     def from_dict(cls, stats: dict):
-        WEAPONS = ('ak47', 'm4a1', 'awp', 'glock', 'hkp2000', 'p250', 'elite', 'fiveseven',
+        weapons = ('ak47', 'm4a1', 'awp', 'glock', 'hkp2000', 'p250', 'elite', 'fiveseven',
                    'tec9', 'deagle', 'mac10', 'mp7', 'mp9', 'ump45', 'bizon', 'p90', 'famas',
                    'galilar', 'aug', 'sg556', 'ssg08', 'scar20', 'g3sg1', 'nova', 'mag7', 'sawedoff',
                    'xm1014', 'negev', 'm249')
@@ -176,7 +176,7 @@ class Appid730GameStats(NamedTuple):
 
         stats['taser_accuracy'] = round(stats['total_kills_taser'] / stats[f'total_shots_taser'] * 100, 2)
 
-        for weapon in WEAPONS:
+        for weapon in weapons:
             stats[f'{weapon}_accuracy'] = \
                 round(stats[f'total_hits_{weapon}'] / stats[f'total_shots_{weapon}'] * 100, 2)
 

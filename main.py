@@ -169,8 +169,6 @@ def app_page(appid: int):
     result['developers'] = ', '.join(result['developers'])
     result['genres'] = ', '.join(genre['description'] for genre in result['genres'])
     result['categories'] = ', '.join(genre['description'] for genre in result['categories'])
-    if result['price'] == 0:
-        result['price'] = 'free'
     return render_template("steam_app.html", title=f'{TITLE} :: {result["name"]}', **result)
 
 

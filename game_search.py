@@ -24,7 +24,7 @@ def search_game_on_steam(app_id):
     about_game["release_date"] = game_info['release_date']['date']
     about_game['detailed_description'] = game_info['detailed_description']
     if game_info['is_free']:
-        about_game["price"] = 0
+        about_game["price"] = 'free'
     else:
         try:
             about_game["price"] = game_info['price_overview']['final_formatted']
