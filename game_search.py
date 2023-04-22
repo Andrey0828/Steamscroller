@@ -70,8 +70,9 @@ def search_game_on_steam(app_id):
                 about_game['movies'].append(movie['webm'][list(movie['webm'])[-1]])
 
     about_game['background_raw'] = game_info['background_raw']
-    about_game['images'] = []
-    for img in game_info['screenshots']:
-        about_game['images'].append(img['path_full'])
+    if game_info.get('screenshots'):
+        about_game['images'] = []
+        for img in game_info['screenshots']:
+            about_game['images'].append(img['path_full'])
 
     return about_game

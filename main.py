@@ -42,6 +42,16 @@ def page_not_found(_):
     return render_template('404.html'), 404
 
 
+@app.errorhandler(501)
+def not_found_games(_):
+    return render_template('501.html'), 501
+
+
+@app.errorhandler(502)
+def not_found_games(_):
+    return render_template('502.html'), 502
+
+
 @login_manager.user_loader
 def load_user(user_id):
     return db_session.create_session().get(User, user_id)
@@ -78,7 +88,8 @@ def search_user():
             query = form.query.data
             if validators.url(query):
                 if not steam_profile_re.match(query):
-                    return render_template('forms/search_steam_user.html', title=f'{TITLE} :: Search Steam users', form=form,
+                    return render_template('forms/search_steam_user.html', title=f'{TITLE} :: Search Steam users',
+                                           form=form,
                                            message="Incorrect format.\n"
                                                    "\n"
                                                    "Supported formats:\n"
@@ -98,7 +109,8 @@ def search_user():
             if resolve_vanity['success'] == 1:
                 return redirect(url_for('steam_profile', steamid=resolve_vanity['steamid']))
             if resolve_vanity['success'] == 42:
-                return render_template('forms/search_steam_user.html', title=f'{TITLE} :: Search Steam users', form=form,
+                return render_template('forms/search_steam_user.html', title=f'{TITLE} :: Search Steam users',
+                                       form=form,
                                        message="Incorrect format.\n"
                                                "\n"
                                                "Supported formats:\n"
@@ -122,7 +134,8 @@ def login():
             db_sess = db_session.create_session()
             user = db_sess.query(User).filter(User.steamid == str(steamid)).first()
             if user is None:
-                steam_user = steamapi.api_caller.ISteamUser.GetPlayerSummaries(steamids=steamid)["response"]["players"][0]
+                steam_user = steamapi.api_caller.ISteamUser.GetPlayerSummaries(steamids=steamid)["response"]["players"][
+                    0]
                 user = User(
                     steamid=steamid,
                     name=steam_user['personaname']
@@ -215,11 +228,39 @@ def steam_profile_games(steamid: int):
         avatar = user.get('avatarfull')
 
         games = steamapi.get_games(steamid)
-        games = sorted(games, key=lambda x: (-x['playtime_forever'], x['appid']))
+        if games is not None:
+            games = sorted(games, key=lambda x: (-x['playtime_forever'], x['appid']))
 
-        return render_template('steam_profile_games.html', title=f"{TITLE} :: {nick}", steamid=steamid,
-                               nick=nick, avatar=avatar, games=games)
+            return render_template('steam_profile_games.html', title=f"{TITLE} :: {nick}", steamid=steamid,
+                                   nick=nick, avatar=avatar, games=games)
+        else:
+            abort(501)
     return redirect('/login')
+
+
+@app.route("/profiles/<int:steamid>/friends/")
+def steam_profile_friends(steamid: int):
+    if current_user.is_authenticated:
+
+        if not SteamID(steamid).is_valid():
+            return 'User not found.'
+
+        player_request = steamapi.api_caller.ISteamUser.GetPlayerSummaries(steamids=steamid)["response"]["players"]
+        if not player_request:
+            return 'User not found.'
+
+        user = player_request[0]
+        nick = user['personaname']
+        avatar = user.get('avatarfull')
+        friends = steamapi.get_friends(steamid)
+
+        if friends is not None:
+            return render_template('steam_profile_friends.html', title=f"{TITLE} :: {nick}", steamid=steamid,
+                                   nick=nick, avatar=avatar, friends=friends)
+        else:
+            abort(502)
+    else:
+        return redirect('/login')
 
 
 @app.route("/profiles/<int:steamid>/", methods=['POST', 'GET'])

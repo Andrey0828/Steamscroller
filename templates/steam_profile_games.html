@@ -1,14 +1,23 @@
 {% extends "base.html" %}
 
 {% block content %}
+
 <img src="{{ avatar }}" alt="Avatar can\'t be loaded...">
 <br>
 <br>
 <h4>Games of {{ nick }}</h4>
 <a href=".." class="btn btn-dark">< Back</a>
+<br><br>
 {% if games %}
     {% for game in games %}
-        <h4><a href="/app/{{ game['appid'] }}">{{ game["name"] }}</a></h4>
+        <h4>
+            <span>
+                <a href="/app/{{ game['appid'] }}">
+                    <img src="https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/{{ game['appid'] }}/{{ game['img_icon_url'] }}.jpg" alt="Image can\'t be loaded...">
+                </a>
+                <a href="/app/{{ game['appid'] }}">{{ game["name"] }}</a>
+            </span>
+        </h4>
         {% set playtime = game["playtime_forever"] / 60 %}
         {% if playtime > 0 %}
             <h4>{{ '%0.2f' % playtime|float }} hours played.</h4>

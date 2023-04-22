@@ -22,6 +22,7 @@
         <h4>Last logoff: {{ user.last_logoff }}</h4>
     {% endif %}
     <button class="btn btn-dark" onclick="window.location.href='{{ url_for('steam_profile_games', steamid=steamid) }}'">Games</button>
+    <button class="btn btn-dark" onclick="window.location.href='{{ url_for('steam_profile_friends', steamid=steamid) }}'">Friends</button>
     {% if user.bans.game_bans is not none %}
         <h4>Game bans: {{ user.bans.game_bans if user.bans.game_bans else "No" }}</h4>
     {% endif %}

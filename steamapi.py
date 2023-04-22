@@ -13,12 +13,15 @@ def get_app_details(appid) -> dict | None:
 
 
 def get_friends(steamid) -> list | None:
-    friendslist_request = api_caller.ISteamUser.GetFriendList(steamid=steamid)
-    if friendslist_request:
-        friends_list = friendslist_request['friendslist']['friends']
-        friends_steamids = ','.join(friend['steamid'] for friend in friends_list)
-        friends_request = api_caller.ISteamUser.GetPlayerSummaries(steamids=friends_steamids)
-        return friends_request['response']['players']
+    try:
+        friendslist_request = api_caller.ISteamUser.GetFriendList(steamid=steamid)
+        if friendslist_request:
+            friends_list = friendslist_request['friendslist']['friends']
+            friends_steamids = ','.join(friend['steamid'] for friend in friends_list)
+            friends_request = api_caller.ISteamUser.GetPlayerSummaries(steamids=friends_steamids)
+            return friends_request['response']['players']
+    except Exception:
+        return
 
 
 def get_games(steamid) -> list | None:
@@ -34,7 +37,7 @@ def get_games(steamid) -> list | None:
 
 
 def get_730_stats(steamid) -> Appid730GameStats | None:
-    response = api_caller.ISteamUserStats.GetUserStatsForGame(appid=730, steamid=76561198260803063)
+    response = api_caller.ISteamUserStats.GetUserStatsForGame(appid=730, steamid=steamid)
     if response:
         stats_dict = {stat['name']: stat['value'] for stat in response["playerstats"]["stats"]}
         stats_dict['steamid'] = steamid

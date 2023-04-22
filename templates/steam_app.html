@@ -91,10 +91,13 @@
             </div>
         {% endfor %}
     {% endif %}
-    {% for im in images[:5] %}
-        <br>
-        <img src="{{ im }}" width="100%" height="100%">
-        <br>
-    {% endfor %}
+    {% if images %}
+        {% for im in images[:5] %}
+            <br>
+            <img src="{{ im }}" width="100%" height="100%">
+            <br>
+        {% endfor %}
+    {% endif %}
 </center>
+
 {% endblock %}

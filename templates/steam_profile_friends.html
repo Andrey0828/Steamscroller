@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <img src="{{ avatar }}" alt="Avatar can\'t be loaded...">
+    <br>
+    <br>
+    <h4>Friends of {{ nick }}</h4>
+    <a href=".." class="btn btn-dark">< Back</a>
+    <br>
+    {% if friends %}
+        {% for friend in friends %}
+            <br>
+            <a href="/profiles/{{ friend['steamid'] }}">
+                <img src="{{ friend['avatarfull'] }}" alt="Image can\'t be loaded...">
+            </a>
+            <h4><a href="/profiles/{{ friend['steamid'] }}">{{ friend["personaname"] }}</a></h4>
+        {% endfor %}
+    {% else %}
+        <h4>This user doesn't own any friend or hidden his friends list.</h4>
+    {% endif %}
+
+{% endblock %}
