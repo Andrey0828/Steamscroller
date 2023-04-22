@@ -48,7 +48,7 @@ def not_found_games(_):
 
 
 @app.errorhandler(502)
-def not_found_games(_):
+def not_found_friends(_):
     return render_template('502.html'), 502
 
 
