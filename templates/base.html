@@ -22,8 +22,14 @@
                 <input type="text" class="searchbar" id="searchbar-live" placeholder="Search for Steam apps..." />
                 <div class="search-results" id="search-results-live"></div>
             </div>
+            <a class="navbar-brand text-light" href="/searchuser">Search Steam users</a>
             {% if current_user.is_authenticated %}
-                <a class="navbar-brand text-light" href="/logout">{{ current_user.surname }} {{ current_user.name }}</a>
+                {% if current_user.surname is none %}
+                    {% set surname = '' %}
+                {% else %}
+                    {% set surname = current_user.surname %}
+                {% endif %}
+                <a class="navbar-brand text-light" href="/logout">{{ surname }} {{ current_user.name }}</a>
             {% else %}
                 {% if flag %}
                     <h2>

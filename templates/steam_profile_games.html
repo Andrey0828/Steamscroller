@@ -5,22 +5,19 @@
 <br>
 <br>
 <h4>Games of {{ nick }}</h4>
-<form method="post">
-    <a href=".." class="btn btn-dark">< Back</a>
+<a href=".." class="btn btn-dark">< Back</a>
 {% if games %}
     {% for game in games %}
-        {% if game["appid"] == 730 %}
-               <button type="submit" class="btn btn-dark" name="user730stats">CS:GO stats</button>
-        {% endif %}
-    {% endfor %}
-</form>
-    {% for game in games %}
-        <h4><a href="/profiles/{{ game['name'] }}">{{ game["name"] }}</a></h4>
+        <h4><a href="/app/{{ game['appid'] }}">{{ game["name"] }}</a></h4>
         {% set playtime = game["playtime_forever"] / 60 %}
         {% if playtime > 0 %}
             <h4>{{ '%0.2f' % playtime|float }} hours played.</h4>
         {% else %}
             <h4>No playtime.</h4>
+        {% endif %}
+        {% if game["appid"] == 730 %}
+            <button class="btn btn-dark" onclick="window.location.href='{{ url_for('steam_profile_730stats', steamid=steamid) }}'">CS:GO stats</button>
+            <br>
         {% endif %}
         <br>
     {% endfor %}
