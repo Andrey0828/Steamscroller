@@ -5,3 +5,5 @@ validators
 steam
 urllib3
 requests
+flask_wtf
+wtforms
