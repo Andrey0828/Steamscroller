@@ -109,6 +109,11 @@ nav > a {
   }
 }
 
+#welcome {
+  margin-left: 25%;
+  width: 50%;
+}
+
 .container {
   min-height: 100%;
   padding: 15px 40px;
@@ -116,9 +121,27 @@ nav > a {
   backdrop-filter: blur(6px);
 }
 
-.stats-container, .stats-category, .friends-list {
+.stats-container, .stats-category, .friends-list, .sections {
   display: flex;
   flex-wrap: wrap;
+}
+
+.sections {
+    padding: 20px 5% 50px;
+}
+
+.sections > div {
+    margin-top: auto;
+    margin-bottom: auto;
+    width: 50%;
+    min-width: 50%;
+}
+
+.sections ul {
+    font-size: 18px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
 }
 
 .stats-category, .stats-subcategory {
