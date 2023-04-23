@@ -20,8 +20,8 @@ def search_game_on_steam(app_id):
     about_game['header_image'] = game_info['header_image']
     about_game['appid'] = game_info['steam_appid']
     about_game['name'] = game_info['name']
-    about_game['genres'] = game_info['genres']
-    about_game['developers'] = game_info['developers']
+    about_game['genres'] = game_info.get('genres')
+    about_game['developers'] = game_info.get('developers')
     about_game["release_date"] = game_info['release_date']['date']
     about_game['detailed_description'] = game_info['detailed_description']
     if game_info['is_free']:
@@ -34,7 +34,8 @@ def search_game_on_steam(app_id):
 
     about_game['pc_requirements'] = {}
     if isinstance(game_info['pc_requirements'], list):
-        about_game['pc_requirements']['minimum'] = game_info['pc_requirements']
+        if game_info['pc_requirements']:
+            about_game['pc_requirements']['minimum'] = game_info['pc_requirements']
     else:
         if game_info['pc_requirements'].get('minimum'):
             about_game['pc_requirements']['minimum'] = game_info['pc_requirements']['minimum']
@@ -43,7 +44,8 @@ def search_game_on_steam(app_id):
 
     about_game['mac_requirements'] = {}
     if isinstance(game_info['mac_requirements'], list):
-        about_game['mac_requirements']['minimum'] = game_info['mac_requirements']
+        if game_info['mac_requirements']:
+            about_game['mac_requirements']['minimum'] = game_info['mac_requirements']
     else:
         if game_info['mac_requirements'].get('minimum'):
             about_game['mac_requirements']['minimum'] = game_info['mac_requirements']['minimum']
@@ -52,7 +54,8 @@ def search_game_on_steam(app_id):
 
     about_game['linux_requirements'] = {}
     if isinstance(game_info['linux_requirements'], list):
-        about_game['linux_requirements']['minimum'] = game_info['linux_requirements']
+        if game_info['linux_requirements']:
+            about_game['linux_requirements']['minimum'] = game_info['linux_requirements']
     else:
         if game_info['linux_requirements'].get('minimum'):
             about_game['linux_requirements']['minimum'] = game_info['linux_requirements']['minimum']

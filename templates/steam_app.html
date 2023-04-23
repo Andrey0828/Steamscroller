@@ -69,38 +69,49 @@
 {% else %}
     <span class="text">unknown :(</span>
 {% endif %}
-<div>
+{% if movies or images %}
+    <br>
+    <h4>Media:</h4>
+    <div class="tab">
+        {% if movies %}
+            <button class="tablinks" onclick="openTab(event, 'app-movies')">Movies</button>
+        {% endif %}
+        {% if images %}
+            <button class="tablinks" onclick="openTab(event, 'app-images')">Images</button>
+        {% endif %}
+    </div>
     {% if movies %}
-        {% for movie in movies[:5] %}
-            <br>
-            <div class="mp4">
-                {% if loop.first %}
-                    <video controls autoplay muted id="videoId1">
-                        {% if movie.endswith('.mp4') %}
-                            <source src="{{ movie }}" type="video/mp4">
-                        {% else %}
-                            <source src="{{ movie }}" type="video/webm">
-                        {% endif %}
-                    </video>
-                {% else %}
-                    <video controls muted id="videoId2">
-                        {% if movie.endswith('.mp4') %}
-                            <source src="{{ movie }}" type="video/mp4">
-                        {% else %}
-                            <source src="{{ movie }}" type="video/webm">
-                        {% endif %}
-                    </video>
-                {% endif %}
-            </div>
-        {% endfor %}
+        <div id="app-movies" class="tabcontent">
+            {% for movie in movies[:5] %}
+                <div class="mp4">
+                    {% if loop.first %}
+                        <video controls autoplay muted id="videoId1">
+                            {% if movie.endswith('.mp4') %}
+                                <source src="{{ movie }}" type="video/mp4">
+                            {% else %}
+                                <source src="{{ movie }}" type="video/webm">
+                            {% endif %}
+                        </video>
+                    {% else %}
+                        <video controls muted id="videoId2">
+                            {% if movie.endswith('.mp4') %}
+                                <source src="{{ movie }}" type="video/mp4">
+                            {% else %}
+                                <source src="{{ movie }}" type="video/webm">
+                            {% endif %}
+                        </video>
+                    {% endif %}
+                </div>
+            {% endfor %}
+        </div>
     {% endif %}
     {% if images %}
-        {% for im in images[:5] %}
-            <br>
-            <img src="{{ im }}" width="100%" height="100%">
-            <br>
-        {% endfor %}
+        <div id="app-images" class="tabcontent">
+            {% for im in images[:5] %}
+                <img src="{{ im }}" width="100%" height="100%">
+            {% endfor %}
+        </div>
     {% endif %}
-</div>
+{% endif %}
 
 {% endblock %}

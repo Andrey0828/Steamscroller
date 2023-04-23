@@ -266,8 +266,10 @@ def app_page(appid: int):
     if result == 'not found':
         return abort(404)
 
-    result['developers'] = ', '.join(result['developers'])
-    result['genres'] = ', '.join(genre['description'] for genre in result['genres'])
+    if result.get('developers'):
+        result['developers'] = ', '.join(result['developers'])
+    if result.get('genres'):
+        result['genres'] = ', '.join(genre['description'] for genre in result['genres'])
     if result.get('categories'):
         result['categories'] = ', '.join(genre['description'] for genre in result['categories'])
     return render_template("steam_app.html", title=f'{TITLE} :: {result["name"]}', **result)
