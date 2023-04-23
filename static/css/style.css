@@ -116,7 +116,7 @@ nav > a {
   backdrop-filter: blur(6px);
 }
 
-.stats-container, .stats-category {
+.stats-container, .stats-category, .friends-list {
   display: flex;
   flex-wrap: wrap;
 }
@@ -218,4 +218,12 @@ footer > h6 {
   from {
     transform: scale(1, 0);
   }
+}
+
+.friends-list > div {
+  padding: 20px;
+}
+
+.friends-list h4 {
+    max-width: 100%;
 }

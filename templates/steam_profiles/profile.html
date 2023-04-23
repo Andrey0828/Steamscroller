@@ -1,11 +1,11 @@
 {% extends "base.html" %}
 
 {% block content %}
-<center>
-    <img src="{{ user.avatar }}" alt="Avatar can\'t be loaded...">
+<div class="centered">
+    <img class="centered" src="{{ user.avatar }}" alt="Avatar can\'t be loaded...">
     <br>
     <br>
-    <h4>Nickname: {{ user.nick }}</h4>
+    <h4>Nickname: {{ user.nickname }}</h4>
     {% if user.name %}
         <h4>Real name*: {{ user.name }}</h4>
     {% endif %}
@@ -21,8 +21,8 @@
     {% if user.last_logoff %}
         <h4>Last logoff: {{ user.last_logoff }}</h4>
     {% endif %}
-    <button class="btn btn-dark" onclick="window.location.href='{{ url_for('steam_profile_games', steamid=steamid) }}'">Games</button>
-    <button class="btn btn-dark" onclick="window.location.href='{{ url_for('steam_profile_friends', steamid=steamid) }}'">Friends</button>
+    <button class="btn btn-dark" onclick="window.location.href='{{ url_for('steam_profile_games', steamid=user.id) }}'">Games</button>
+    <button class="btn btn-dark" onclick="window.location.href='{{ url_for('steam_profile_friends', steamid=user.id) }}'">Friends</button>
     {% if user.bans.game_bans is not none %}
         <h4>Game bans: {{ user.bans.game_bans if user.bans.game_bans else "No" }}</h4>
     {% endif %}
@@ -44,13 +44,5 @@
     {% if user.name %}
         <br><h4>* - User real name are defined by a user itself.</h4>
     {% endif %}
-</center>
-<br>
-<br>
-<br>
-<br>
-<br>
-<br>
-<br>
-<br>
+</div>
 {% endblock %}

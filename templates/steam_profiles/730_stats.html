@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+
+{% block content %}
+<img src="{{ user.avatar }}" alt="Avatar can\'t be loaded...">
+<br><br>
+<h4>CS:GO stats of {{ user.nickname }}</h4>
+<a href=".." class="btn btn-dark">< Back</a>
+<br><br>
+{% if stats %}
+    {{ stats|safe }}
+{% else %}
+    <h3>Failed to get stats.</h3>
+{% endif %}
+{% endblock %}

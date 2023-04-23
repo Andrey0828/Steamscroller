@@ -2,10 +2,10 @@
 
 {% block content %}
 
-<img src="{{ avatar }}" alt="Avatar can\'t be loaded...">
+<img src="{{ user.avatar }}" alt="Avatar can\'t be loaded...">
 <br>
 <br>
-<h4>Games of {{ nick }}</h4>
+<h4>Games of {{ user.nickname }}</h4>
 <a href=".." class="btn btn-dark">< Back</a>
 <br><br>
 {% if games %}
@@ -25,7 +25,7 @@
             <h4>No playtime.</h4>
         {% endif %}
         {% if game["appid"] == 730 %}
-            <button class="btn btn-dark" onclick="window.location.href='{{ url_for('steam_profile_730stats', steamid=steamid) }}'">CS:GO stats</button>
+            <button class="btn btn-dark" onclick="window.location.href='{{ url_for('steam_profile_730stats', steamid=user.id) }}'">CS:GO stats</button>
             <br>
         {% endif %}
         <br>

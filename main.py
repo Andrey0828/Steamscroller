@@ -42,16 +42,6 @@ def page_not_found(_):
     return render_template('404.html'), 404
 
 
-@app.errorhandler(501)
-def not_found_games(_):
-    return render_template('501.html'), 501
-
-
-@app.errorhandler(502)
-def not_found_friends(_):
-    return render_template('502.html'), 502
-
-
 @login_manager.user_loader
 def load_user(user_id):
     return db_session.create_session().get(User, user_id)
@@ -90,12 +80,12 @@ def search_user():
                 if not steam_profile_re.match(query):
                     return render_template('forms/search_steam_user.html', title=f'{TITLE} :: Search Steam users',
                                            form=form,
-                                           message="Incorrect format.\n"
-                                                   "\n"
-                                                   "Supported formats:\n"
-                                                   "https://steamcommunity.com/id/mmger\n"
-                                                   "https://steamcommunity.com/profiles/76561198037479071\n"
-                                                   "mmger\n"
+                                           message="Incorrect format.<br>"
+                                                   "<br>"
+                                                   "Supported formats:<br>"
+                                                   "https://steamcommunity.com/id/mmger<br>"
+                                                   "https://steamcommunity.com/profiles/76561198037479071<br>"
+                                                   "mmger<br>"
                                                    "76561198037479071")
 
                 link_parts = steam_profile_re.match(query).group(0).split('/')
@@ -134,8 +124,8 @@ def login():
             db_sess = db_session.create_session()
             user = db_sess.query(User).filter(User.steamid == str(steamid)).first()
             if user is None:
-                steam_user = steamapi.api_caller.ISteamUser.GetPlayerSummaries(steamids=steamid)["response"]["players"][
-                    0]
+                user_request = steamapi.api_caller.ISteamUser.GetPlayerSummaries(steamids=steamid)
+                steam_user = user_request["response"]["players"][0]
                 user = User(
                     steamid=steamid,
                     name=steam_user['personaname']
@@ -152,7 +142,8 @@ def login():
         if user and user.check_password(form.password.data):
             login_user(user, remember=form.remember_me.data)
             return redirect("/")
-        return render_template('forms/login.html', message="Incorrect login or password", form=form)
+        return render_template('forms/login.html', title=f'{TITLE} :: Sign in', form=form,
+                               message="Incorrect login or password")
     return render_template('forms/login.html', title=f'{TITLE} :: Sign in', form=form)
 
 
@@ -188,183 +179,102 @@ def index():
 @app.route("/profiles/<int:steamid>/csgostats/")
 @app.route("/profiles/<int:steamid>/730stats/")
 def steam_profile_730stats(steamid: int):
-    if current_user.is_authenticated:
-        if not SteamID(steamid).is_valid():
-            return 'User not found.'
+    if not current_user.is_authenticated:
+        return redirect('/login')
 
-        player_request = steamapi.api_caller.ISteamUser.GetPlayerSummaries(steamids=steamid)["response"]["players"]
-        if not player_request:
-            return 'User not found.'
+    user = steamapi.get_user(steamid)
+    if not user:
+        return 'User not found.'
 
-        user = player_request[0]
-        nick = user['personaname']
-        avatar = user.get('avatarfull')
+    stats = steamapi.get_730_stats(steamid)
+    if stats is not None:
+        stats = stats.get_text()
 
-        stats = steamapi.get_730_stats(steamid)
-        if not stats:
-            return 'Failed to get stats.'
-
-        return render_template('steam_profile_730_stats.html', title=f"{TITLE} :: {nick}",
-                               nick=nick, avatar=avatar, stats=stats.get_text())
-    return redirect('/login')
+    return render_template('steam_profiles/730_stats.html', title=f"{TITLE} :: {user.nickname}", user=user, stats=stats)
 
 
 @app.route("/profiles/<int:steamid>/games/", methods=['POST', 'GET'])
 def steam_profile_games(steamid: int):
-    if current_user.is_authenticated:
-        if request.method == 'POST':
-            if 'user730stats' in request.form:
-                return redirect(url_for('steam_profile_730stats', steamid=steamid))
+    if not current_user.is_authenticated:
+        return redirect('/login')
 
-        if not SteamID(steamid).is_valid():
-            return 'User not found.'
+    user = steamapi.get_user(steamid)
+    if not user:
+        return 'User not found.'
 
-        player_request = steamapi.api_caller.ISteamUser.GetPlayerSummaries(steamids=steamid)["response"]["players"]
-        if not player_request:
-            return 'User not found.'
+    games = steamapi.get_games(steamid)
+    if games is not None:
+        games = sorted(games, key=lambda x: (-x['playtime_forever'], x['appid']))
 
-        user = player_request[0]
-        nick = user['personaname']
-        avatar = user.get('avatarfull')
-
-        games = steamapi.get_games(steamid)
-        if games is not None:
-            games = sorted(games, key=lambda x: (-x['playtime_forever'], x['appid']))
-
-            return render_template('steam_profile_games.html', title=f"{TITLE} :: {nick}", steamid=steamid,
-                                   nick=nick, avatar=avatar, games=games)
-        else:
-            abort(501)
-    return redirect('/login')
+    return render_template('steam_profiles/games.html', title=f"{TITLE} :: {user.nickname}", user=user, games=games)
 
 
 @app.route("/profiles/<int:steamid>/friends/")
 def steam_profile_friends(steamid: int):
-    if current_user.is_authenticated:
-
-        if not SteamID(steamid).is_valid():
-            return 'User not found.'
-
-        player_request = steamapi.api_caller.ISteamUser.GetPlayerSummaries(steamids=steamid)["response"]["players"]
-        if not player_request:
-            return 'User not found.'
-
-        user = player_request[0]
-        nick = user['personaname']
-        avatar = user.get('avatarfull')
-        friends = steamapi.get_friends(steamid)
-
-        if friends is not None:
-            return render_template('steam_profile_friends.html', title=f"{TITLE} :: {nick}", steamid=steamid,
-                                   nick=nick, avatar=avatar, friends=friends)
-        else:
-            abort(502)
-    else:
+    if not current_user.is_authenticated:
         return redirect('/login')
+
+    user = steamapi.get_user(steamid)
+    if not user:
+        return 'User not found.'
+
+    friends = steamapi.get_friends(steamid)
+
+    return render_template('steam_profiles/friends.html', title=f"{TITLE} :: {user.nickname}", user=user,
+                           friends=friends)
 
 
 @app.route("/profiles/<int:steamid>/", methods=['POST', 'GET'])
 def steam_profile(steamid: int):
-    if current_user.is_authenticated:
-        if request.method == 'POST':
-            if 'usergames' in request.form:
-                return redirect(url_for('steam_profile_games', steamid=steamid))
+    if not current_user.is_authenticated:
+        return redirect('/login')
 
-        if not SteamID(steamid).is_valid():
-            return 'User not found.'
+    user = steamapi.get_user(steamid)
+    if not user:
+        return 'User not found.'
 
-        player_request = steamapi.api_caller.ISteamUser.GetPlayerSummaries(steamids=steamid)["response"]["players"]
-        if not player_request:
-            return 'User not found.'
-
-        user = player_request[0]
-        level = steamapi.api_caller.IPlayerService.GetSteamLevel(steamid=steamid)['response'].get('player_level')
-
-        class Bans(NamedTuple):
-            community_ban: bool
-            vac_bans: int
-            game_bans: int
-            economy_ban: bool
-            days_since_last_ban: int
-
-        class User(NamedTuple):
-            nick: str
-            name: str | None
-            avatar: str
-            level: int | None
-            country: str | None
-            profile_created: str
-            last_logoff: str | None
-            bans: Bans
-
-        nick = user['personaname']
-        name = user.get('realname')
-        avatar = user.get('avatarfull')
-        country = user.get('loccountrycode')
-        if country:
-            country = search_country_by_name(country).name
-        profile_created = user.get('timecreated')
-        if profile_created:
-            profile_created = dt.datetime.fromtimestamp(profile_created).strftime('%A, %d %B %Y, %H:%M:%S')
-        last_logoff = user.get('lastlogoff')
-        if last_logoff:
-            last_logoff = dt.datetime.fromtimestamp(last_logoff).strftime('%A, %d %B %Y, %H:%M:%S')
-
-        bans_request = steamapi.api_caller.ISteamUser.GetPlayerBans(steamids=steamid)
-        community_ban, vac_ban, game_bans, economy_ban = None, None, None, None
-        days_since_last_ban = 0
-
-        if bans_request:
-            bans = bans_request['players'][0]
-            community_ban = bans['CommunityBanned']
-            vac_ban = bans['NumberOfVACBans']
-            game_bans = bans['NumberOfGameBans']
-            economy_ban = bans["EconomyBan"] != "none"
-
-            if community_ban or vac_ban or game_bans or economy_ban:
-                days_since_last_ban = bans["DaysSinceLastBan"]
-
-        return render_template('steam_profile.html', title=f"{TITLE} :: {nick}", steamid=steamid,
-                               user=User(nick, name, avatar, level, country, profile_created, last_logoff,
-                                         Bans(community_ban, vac_ban, game_bans, economy_ban, days_since_last_ban)))
-    return redirect('/login')
+    return render_template('steam_profiles/profile.html', title=f"{TITLE} :: {user.nickname}", user=user)
 
 
 @app.route("/id/<string:vanityurl>/", strict_slashes=False)
 def steam_profile_vanity(vanityurl: str):
-    if current_user.is_authenticated:
-        resolve_vanity = steamapi.api_caller.ISteamUser.ResolveVanityURL(vanityurl=vanityurl, url_type=1)['response']
+    if not current_user.is_authenticated:
+        return redirect('/login')
 
-        if resolve_vanity['success'] == 1:
-            return redirect(url_for('steam_profile', steamid=resolve_vanity["steamid"]))
+    resolve_vanity = steamapi.api_caller.ISteamUser.ResolveVanityURL(vanityurl=vanityurl, url_type=1)['response']
 
-        if resolve_vanity['success'] == 42:
-            return 'User not found.'
+    if resolve_vanity['success'] == 1:
+        return redirect(url_for('steam_profile', steamid=resolve_vanity["steamid"]))
 
-        return f'Error! Try again later. ({resolve_vanity["success"]})'
-    return redirect('/login')
+    if resolve_vanity['success'] == 42:
+        return 'User not found.'
+
+    return f'Error! Try again later. ({resolve_vanity["success"]})'
 
 
 @app.route('/searchapp/<string:query>/')
 def search_app(query: str):
-    if current_user.is_authenticated:
-        return render_template("search_pages/search_app.html", title=f'{TITLE} :: Searching "{query}"',
-                               results=search_apps_by_name(query))
-    return redirect('/login')
+    if not current_user.is_authenticated:
+        return redirect('/login')
+
+    return render_template('search/search_app.html', title=f'{TITLE} :: Searching "{query}"',
+                           results=search_apps_by_name(query))
 
 
 @app.route("/app/<int:appid>/")
 def app_page(appid: int):
-    if current_user.is_authenticated:
-        result = search_game_on_steam(appid)
-        if result == 'not found':
-            return abort(404)
+    if not current_user.is_authenticated:
+        return redirect('/login')
 
-        result['developers'] = ', '.join(result['developers'])
-        result['genres'] = ', '.join(genre['description'] for genre in result['genres'])
+    result = search_game_on_steam(appid)
+    if result == 'not found':
+        return abort(404)
+
+    result['developers'] = ', '.join(result['developers'])
+    result['genres'] = ', '.join(genre['description'] for genre in result['genres'])
+    if result.get('categories'):
         result['categories'] = ', '.join(genre['description'] for genre in result['categories'])
-        return render_template("steam_app.html", title=f'{TITLE} :: {result["name"]}', **result)
-    return redirect('/login')
+    return render_template("steam_app.html", title=f'{TITLE} :: {result["name"]}', **result)
 
 
 @app.route("/livesearch", methods=["POST", "GET"])
