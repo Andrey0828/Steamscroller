@@ -7,3 +7,6 @@ urllib3
 requests
 flask_wtf
 wtforms
+sqlalchemy
+werkzeug
+sqlalchemy_serializer
