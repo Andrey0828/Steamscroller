@@ -1,4 +1,5 @@
 import requests
+import config as cfg
 
 
 def search_game_on_steam(app_id):
@@ -74,5 +75,16 @@ def search_game_on_steam(app_id):
         about_game['images'] = []
         for img in game_info['screenshots']:
             about_game['images'].append(img['path_full'])
+
+    try:
+        url = f"https://api.steampowered.com/ISteamUserStats/GetNumberOfCurrentPlayers/v1/"
+        params = {"key": cfg.API_KEY, "appid": app_id, "format": "json"}
+
+        response = requests.get(url, params=params)
+        data = response.json()
+
+        about_game['player_count'] = data["response"]["player_count"]
+    except Exception:
+        about_game['player_count'] = None
 
     return about_game

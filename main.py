@@ -2,19 +2,15 @@ import validators
 from flask_login import LoginManager, login_user, login_required, logout_user, current_user
 from flask import Flask, render_template, redirect, request, url_for, abort
 
-from country_name import search_country_by_name
 from game_search import search_game_on_steam
 
 from forms import RegisterForm, LoginForm, SearchUsersForm
 
 from steam.steamid import SteamID
 
-from typing import NamedTuple
-
 from data.users import User
 from data import db_session
 
-import datetime as dt
 import re
 import requests
 
