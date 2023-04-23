@@ -27,7 +27,7 @@ app.config['SECRET_KEY'] = cfg.FLASKAPP_SECRET_KEY
 login_manager = LoginManager()
 login_manager.init_app(app)
 
-db_session.global_init("db/sqlachemy.db")
+db_session.global_init("db/main.db")
 
 steam_profile_re = re.compile(r'(?:https?://)?steamcommunity\.com/(?:profiles|id)/[a-zA-Z0-9]+(/?)\w')
 steam_openid_re = re.compile(r'https://steamcommunity\.com/openid/id/(.*?)$')
@@ -122,6 +122,7 @@ def login():
             if user is None:
                 user_request = steamapi.api_caller.ISteamUser.GetPlayerSummaries(steamids=steamid)
                 steam_user = user_request["response"]["players"][0]
+                # noinspection PyArgumentList
                 user = User(
                     steamid=steamid,
                     name=steam_user['personaname']
@@ -135,6 +136,7 @@ def login():
     if form.validate_on_submit():
         db_sess = db_session.create_session()
         user = db_sess.query(User).filter(User.email == str(form.email.data)).first()
+        # noinspection PyArgumentList
         if user and user.check_password(form.password.data):
             login_user(user, remember=form.remember_me.data)
             return redirect("/")
@@ -154,6 +156,7 @@ def register():
         if db_sess.query(User).filter(User.email == str(form.email.data)).first():
             return render_template('forms/register.html', title='Регистрация', form=form,
                                    message="There is already a user")
+        # noinspection PyArgumentList
         user = User(
             surname=form.surname.data,
             name=form.name.data,
@@ -183,10 +186,9 @@ def steam_profile_730stats(steamid: int):
         return 'User not found.'
 
     stats = steamapi.get_730_stats(steamid)
-    if stats is not None:
-        stats = stats.get_text()
 
-    return render_template('steam_profiles/730_stats.html', title=f"{TITLE} :: {user.nickname}", user=user, stats=stats)
+    return render_template('steam_profiles/730_stats.html', title=f"{TITLE} :: {user.nickname}",
+                           user=user, stats=stats)
 
 
 @app.route("/profiles/<int:steamid>/games/", methods=['POST', 'GET'])
