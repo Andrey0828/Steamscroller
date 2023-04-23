@@ -1,0 +1,7 @@
+Flask
+Flask-Login
+Flask-RESTful
+validators
+steam
+urllib3
+requests
