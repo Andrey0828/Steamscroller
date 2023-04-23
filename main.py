@@ -76,7 +76,7 @@ def steam_auth():
         'openid.identity': "http://specs.openid.net/auth/2.0/identifier_select",
         'openid.claimed_id': "http://specs.openid.net/auth/2.0/identifier_select",
         'openid.mode': 'checkid_setup',
-        'openid.return_to': 'login',
+        'openid.return_to': 'http://127.0.0.1:5000/login',
         'openid.realm': 'http://127.0.0.1:5000'
     }
 
