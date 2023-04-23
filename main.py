@@ -52,6 +52,11 @@ def not_found_friends(_):
     return render_template('502.html'), 502
 
 
+@app.errorhandler(503)
+def not_found_stats(_):
+    return render_template('503.html'), 503
+
+
 @login_manager.user_loader
 def load_user(user_id):
     return db_session.create_session().get(User, user_id)
@@ -71,7 +76,7 @@ def steam_auth():
         'openid.identity': "http://specs.openid.net/auth/2.0/identifier_select",
         'openid.claimed_id': "http://specs.openid.net/auth/2.0/identifier_select",
         'openid.mode': 'checkid_setup',
-        'openid.return_to': 'http://127.0.0.1:5000/login',
+        'openid.return_to': 'login',
         'openid.realm': 'http://127.0.0.1:5000'
     }
 
@@ -201,8 +206,8 @@ def steam_profile_730stats(steamid: int):
         avatar = user.get('avatarfull')
 
         stats = steamapi.get_730_stats(steamid)
-        if not stats:
-            return 'Failed to get stats.'
+        if stats is None:
+            abort(503)
 
         return render_template('steam_profile_730_stats.html', title=f"{TITLE} :: {nick}",
                                nick=nick, avatar=avatar, stats=stats.get_text())
@@ -362,7 +367,8 @@ def app_page(appid: int):
 
         result['developers'] = ', '.join(result['developers'])
         result['genres'] = ', '.join(genre['description'] for genre in result['genres'])
-        result['categories'] = ', '.join(genre['description'] for genre in result['categories'])
+        if result.get('categories') is not None:
+            result['categories'] = ', '.join(genre['description'] for genre in result['categories'])
         return render_template("steam_app.html", title=f'{TITLE} :: {result["name"]}', **result)
     return redirect('/login')
 

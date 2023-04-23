@@ -3,12 +3,15 @@
 {% block content %}
 <script src="{{ url_for('static', filename='js/tabs.js') }}"></script>
 
-<h2 class="text-centered">{{ name }}</h2><br>
+<h2 class="text-centered">🎮{{ name }}</h2><br>
 <img class="centered" src="{{ header_image }}" alt="Image can\'t be loaded...">
 <br>
 <iframe class="centered" src="https://store.steampowered.com/widget/{{ appid }}/" frameborder="0" width="646" height="190"></iframe>
 <br>
 <br>
+{% if player_count %}
+    <h4>🟢Online: {{ player_count }}</h4>
+{% endif %}
 <h4>Genres: <span class="text">{{ genres }}</span></h4>
 {% if categories %}
     <h4>Categories: <span class="text">{{ categories }}</span></h4>
@@ -17,8 +20,8 @@
 <h4>Release date: <span class="text">{{ release_date }}</span></h4>
 <h4>Game desctiption: <br> <span class="text">{{ detailed_description|safe }}</span></h4>
 <br>
-<h4>System requirements:</h4>
 {% if pc_requirements or mac_requirements or linux_requirements %}
+    <h4>System requirements:</h4>
     <div class="tab">
         {% if pc_requirements %}
         <button class="tablinks" onclick="openTab(event, 'app-win-requirements')">Windows</button>

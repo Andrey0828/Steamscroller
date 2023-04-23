@@ -37,8 +37,11 @@ def get_games(steamid) -> list | None:
 
 
 def get_730_stats(steamid) -> Appid730GameStats | None:
-    response = api_caller.ISteamUserStats.GetUserStatsForGame(appid=730, steamid=steamid)
-    if response:
-        stats_dict = {stat['name']: stat['value'] for stat in response["playerstats"]["stats"]}
-        stats_dict['steamid'] = steamid
-        return Appid730GameStats.from_dict(stats_dict)
+    try:
+        response = api_caller.ISteamUserStats.GetUserStatsForGame(appid=730, steamid=steamid)
+        if response:
+            stats_dict = {stat['name']: stat['value'] for stat in response["playerstats"]["stats"]}
+            stats_dict['steamid'] = steamid
+            return Appid730GameStats.from_dict(stats_dict)
+    except Exception:
+        return
