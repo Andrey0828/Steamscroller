@@ -1,11 +1,10 @@
 import sqlalchemy as sa
-import sqlalchemy.orm as orm
 from sqlalchemy.orm import Session, sessionmaker
 import sqlalchemy.ext.declarative as dec
 
 SqlAlchemyBase = dec.declarative_base()
 
-__factory: sessionmaker | None = None
+__factory = None
 
 
 def global_init(db_file):
