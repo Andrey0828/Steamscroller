@@ -1,3 +1,9 @@
-API_KEY = '1C2B59B75799094CFB0E4DCBDF113FE4'  # ключ для запросов в steam
-FLASKAPP_SECRET_KEY = r'"^!jnmMqDG`??`6>@rIu/xr2LRgO9/y\QVmc#c(0)WJgc)xN>' \
-                      r',M<Jr*X6pEOL}0&j}VaJ$287_jrg#lt.lD|_T{F+FB6f]*2=\'j'  # ключ для Flask
+import os
+from pathlib import Path
+from dotenv import load_dotenv
+
+dotenv_path = Path(__file__).parent / '.env'
+load_dotenv(dotenv_path)
+
+STEAM_API_KEY = os.environ.get('STEAM_API_KEY')
+FLASKAPP_SECRET_KEY = os.environ.get('FLASKAPP_SECRET_KEY')

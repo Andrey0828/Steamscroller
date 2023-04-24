@@ -32,7 +32,7 @@ login_manager = LoginManager()
 login_manager.init_app(app)
 
 # инициализация базы данных
-db_session.global_init("db/main.db")
+db_session.global_init(".data/main.db")
 
 # регулярные выражения для важных ссылок
 steam_profile_re = re.compile(r'(?:https?://)?steamcommunity\.com/(?:profiles|id)/[a-zA-Z0-9]+(/?)\w')
@@ -354,7 +354,7 @@ def search_apps_by_name(name: str):
 
     requested_name = name.strip().lower()
     response = requests.get('http://api.steampowered.com/ISteamApps/GetAppList/v0002/',
-                            params={'key': cfg.API_KEY, "type": "game"})
+                            params={'key': cfg.STEAM_API_KEY, "type": "game"})
     if response.status_code != 200:
         return f'Error! Try again later. ({response.status_code})'
 

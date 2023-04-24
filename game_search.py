@@ -89,7 +89,7 @@ def search_game_on_steam(app_id):
     # количество игроков онлайн в данный момент
     try:
         url = f"https://api.steampowered.com/ISteamUserStats/GetNumberOfCurrentPlayers/v1/"
-        params = {"key": cfg.API_KEY, "appid": app_id, "format": "json"}
+        params = {"key": cfg.STEAM_API_KEY, "appid": app_id, "format": "json"}
 
         response = requests.get(url, params=params)
         data = response.json()

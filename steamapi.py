@@ -11,7 +11,7 @@ from country_name import search_country_by_name
 
 
 # объект, который обращается к Steam WebAPI
-api_caller = WebAPI(key=cfg.API_KEY)
+api_caller = WebAPI(key=cfg.STEAM_API_KEY)
 
 
 class SteamUser(NamedTuple):
