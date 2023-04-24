@@ -1,9 +1,13 @@
-from typing import NamedTuple
+# здесь хранятся контейнеры со статистикой пользователя в различных играх
+# пока что доступен только один - под CS:GO/CS2 (Appid730GameStats)
 
-"""Обозначение типа переменных"""
+from typing import NamedTuple
 
 
 class Appid730GameStats(NamedTuple):
+    """Контейнер со статистикой пользователя в CS:GO/CS2"""
+
+    # очень много полей статистики
     steamid: int
     total_time_played: float
     total_kills: int
@@ -155,15 +159,15 @@ class Appid730GameStats(NamedTuple):
     total_kills_m249: int
     m249_accuracy: float
 
-    """Приведение статистики игры в необходимую нам форму"""
-
     @classmethod
     def from_dict(cls, stats: dict):
+        """Приводим результат запроса по api в подобающий вид и собираем контейнер"""
+
         weapons = ('ak47', 'm4a1', 'awp', 'glock', 'hkp2000', 'p250', 'elite', 'fiveseven',
                    'tec9', 'deagle', 'mac10', 'mp7', 'mp9', 'ump45', 'bizon', 'p90', 'famas',
                    'galilar', 'aug', 'sg556', 'ssg08', 'scar20', 'g3sg1', 'nova', 'mag7', 'sawedoff',
                    'xm1014', 'negev', 'm249')
-
+        # некоторые значения делятся и округляются
         stats['total_time_played'] = round(stats["total_time_played"] / 3600, 2)
         stats['kd_ratio'] = round(stats['total_kills'] / stats['total_deaths'], 2)
         stats['matches_win_percentage'] = round(stats['total_matches_won'] / stats['total_matches_played'] * 100,
@@ -171,6 +175,7 @@ class Appid730GameStats(NamedTuple):
         stats['hit_accuracy'] = round(stats['total_shots_hit'] / stats['total_shots_fired'] * 100, 2)
         stats['headshots_percentage'] = round(stats['total_kills_headshot'] / stats['total_kills'] * 100, 2)
 
+        # находим лучшую карту пользователя
         best_map = max((stat for stat in stats if stat.startswith('total_wins_map_')),
                        key=lambda x: stats[x]).split('_')[-2:]
         stats['best_map_name'] = best_map[-1].capitalize()
@@ -178,12 +183,15 @@ class Appid730GameStats(NamedTuple):
         best_map_rounds = stats[f'total_rounds_map_{"_".join(best_map)}']
         stats['best_map_win_percentage'] = round(best_map_wins / best_map_rounds * 100, 2)
 
+        # для каждого оружия определяем точность попаданий
         stats['taser_accuracy'] = round(stats['total_kills_taser'] / stats[f'total_shots_taser'] * 100, 2)
 
         for weapon in weapons:
             stats[f'{weapon}_accuracy'] = \
                 round(stats[f'total_hits_{weapon}'] / stats[f'total_shots_{weapon}'] * 100, 2)
 
+        # убираем лишние поля
         stats = {k: v for k, v in stats.items() if k in cls._fields}
 
+        # компонуем в контейнер
         return cls(**stats)

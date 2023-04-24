@@ -20,39 +20,53 @@ import steamapi
 
 import config as cfg
 
-TITLE = 'Steamscroller'
-app = Flask(__name__)
 
+TITLE = 'Steamscroller'
+
+# инициализируем приложение
+app = Flask(__name__)
 app.config['SECRET_KEY'] = cfg.FLASKAPP_SECRET_KEY
 
+# инициализация системы авторизации
 login_manager = LoginManager()
 login_manager.init_app(app)
 
+# инициализация базы данных
 db_session.global_init("db/main.db")
 
+# регулярные выражения для важных ссылок
 steam_profile_re = re.compile(r'(?:https?://)?steamcommunity\.com/(?:profiles|id)/[a-zA-Z0-9]+(/?)\w')
 steam_openid_re = re.compile(r'https://steamcommunity\.com/openid/id/(.*?)$')
 
 
 @app.errorhandler(404)
 def page_not_found(_):
+    """Ошибка 404"""
+
     return render_template('404.html'), 404
 
 
 @login_manager.user_loader
 def load_user(user_id):
+    """Подгрузка пользователя из базы данных"""
+
     return db_session.create_session().get(User, user_id)
 
 
 @app.route('/logout/')
 @login_required
 def logout():
+    """Выход из аккаунта"""
+
     logout_user()
     return redirect("/")
 
 
 @app.route('/steamauth/')
 def steam_auth():
+    """Аутентификация через Steam (openid)"""
+
+    # параметры для корректной работы аутентификации
     params = {
         'openid.ns': "http://specs.openid.net/auth/2.0",
         'openid.identity': "http://specs.openid.net/auth/2.0/identifier_select",
@@ -64,18 +78,24 @@ def steam_auth():
 
     param_string = parse.urlencode(params)
     auth_url = 'https://steamcommunity.com/openid/login?' + param_string
+    # переход по ссылке в Steam, откуда потом мы вернёмся на наш сайт
     return redirect(auth_url)
 
 
 @app.route('/searchuser/', methods=['GET', 'POST'])
 def search_user():
+    """Страница с формой для поиска пользователей Steam (по steamid или vanity url)"""
+
     if not current_user.is_authenticated:
         return redirect('/login')
 
     form = SearchUsersForm()
     if form.validate_on_submit():
         query = form.query.data
+        # проверяем правильность данных
+
         if validators.url(query):
+            # если это ссылка
             if not steam_profile_re.match(query):
                 return render_template('forms/search_steam_user.html', title=f'{TITLE} :: Search Steam users',
                                        form=form,
@@ -91,11 +111,13 @@ def search_user():
             query = link_parts[-1]
 
         if SteamID(query).is_valid():
+            # если это steamid
             return redirect(url_for('steam_profile', steamid=int(query)))
 
         resolve_vanity = steamapi.api_caller.ISteamUser.ResolveVanityURL(vanityurl=query,
                                                                          url_type=1)['response']
         if resolve_vanity['success'] == 1:
+            # если это vanity url
             return redirect(url_for('steam_profile', steamid=resolve_vanity['steamid']))
         if resolve_vanity['success'] == 42:
             return render_template('forms/search_steam_user.html', title=f'{TITLE} :: Search Steam users',
@@ -115,13 +137,18 @@ def search_user():
 
 @app.route('/login/', methods=['GET', 'POST'])
 def login():
+    """Страница с формой для авторизации"""
+
     if request.args.get('openid.identity'):
+        # если перешли с аутентификации через openid
         match = steam_openid_re.search(request.args['openid.identity'])
         if match:
+            # если аутентификация прошла через Steam
             steamid = match.group(1)
             db_sess = db_session.create_session()
             user = db_sess.query(User).filter(User.steamid == str(steamid)).first()
             if user is None:
+                # создаём пользователя если логинится впервые
                 user_request = steamapi.api_caller.ISteamUser.GetPlayerSummaries(steamids=steamid)
                 steam_user = user_request["response"]["players"][0]
                 # noinspection PyArgumentList
@@ -137,9 +164,11 @@ def login():
     form = LoginForm()
     if form.validate_on_submit():
         db_sess = db_session.create_session()
+        # ищем, есть ли такой пользователь в базе данных
         user = db_sess.query(User).filter(User.email == str(form.email.data)).first()
         # noinspection PyArgumentList
         if user and user.check_password(form.password.data):
+            # если пароль совпадает - всё хорошо
             login_user(user, remember=form.remember_me.data)
             return redirect("/")
         return render_template('forms/login.html', title=f'{TITLE} :: Sign in', form=form,
@@ -149,21 +178,27 @@ def login():
 
 @app.route('/register/', methods=['GET', 'POST'])
 def register():
+    """Страница с формой для регистрации"""
+
     form = RegisterForm()
     if form.validate_on_submit():
         if form.password.data != form.password_again.data:
+            # пароли не сходятся
             return render_template('forms/register.html', title='Регистрация', form=form,
                                    message="Passwords don't match")
         db_sess = db_session.create_session()
         if db_sess.query(User).filter(User.email == str(form.email.data)).first():
+            # пароли не сходятся
             return render_template('forms/register.html', title='Регистрация', form=form,
                                    message="There is already a user")
+        # если всё хорошо - создаём нового пользователя
         # noinspection PyArgumentList
         user = User(
             surname=form.surname.data,
             name=form.name.data,
             email=form.email.data
         )
+        # хэшируем пароль и добавляем пользователя в базу данных
         user.set_password(form.password.data)
         db_sess.add(user)
         db_sess.commit()
@@ -173,6 +208,8 @@ def register():
 
 @app.route("/")
 def index():
+    """Главная страница"""
+
     return render_template("index.html", title=TITLE)
 
 
@@ -180,6 +217,8 @@ def index():
 @app.route("/profiles/<int:steamid>/csgostats/")
 @app.route("/profiles/<int:steamid>/730stats/")
 def steam_profile_730stats(steamid: int):
+    """Страница со статистикой пользователя в CS:GO/CS2"""
+
     if not current_user.is_authenticated:
         return redirect('/login')
 
@@ -195,6 +234,8 @@ def steam_profile_730stats(steamid: int):
 
 @app.route("/profiles/<int:steamid>/games/")
 def steam_profile_games(steamid: int):
+    """Страница с библиотекой пользователя"""
+
     if not current_user.is_authenticated:
         return redirect('/login')
 
@@ -211,6 +252,8 @@ def steam_profile_games(steamid: int):
 
 @app.route("/profiles/<int:steamid>/friends/")
 def steam_profile_friends(steamid: int):
+    """Страница со списком друзей пользователя"""
+
     if not current_user.is_authenticated:
         return redirect('/login')
 
@@ -226,6 +269,8 @@ def steam_profile_friends(steamid: int):
 
 @app.route("/profiles/<int:steamid>/")
 def steam_profile(steamid: int):
+    """Страница с профилем пользователя"""
+
     if not current_user.is_authenticated:
         return redirect('/login')
 
@@ -238,6 +283,8 @@ def steam_profile(steamid: int):
 
 @app.route("/id/<string:vanityurl>/", strict_slashes=False)
 def steam_profile_vanity(vanityurl: str):
+    """Ссылка для поиска пользователя по vanity url через адресную строку"""
+
     if not current_user.is_authenticated:
         return redirect('/login')
 
@@ -249,11 +296,14 @@ def steam_profile_vanity(vanityurl: str):
     if resolve_vanity['success'] == 42:
         return 'User not found.'
 
+    # возможны сторонние ошибки
     return f'Error! Try again later. ({resolve_vanity["success"]})'
 
 
 @app.route('/searchapp/<string:query>/')
 def search_app(query: str):
+    """Поиск приложения Steam по названию"""
+
     if not current_user.is_authenticated:
         return redirect('/login')
 
@@ -263,6 +313,8 @@ def search_app(query: str):
 
 @app.route('/app/<int:appid>/')
 def app_page(appid: int):
+    """Страница приложения Steam"""
+
     if not current_user.is_authenticated:
         return redirect('/login')
 
@@ -281,6 +333,10 @@ def app_page(appid: int):
 
 @app.route("/livesearch", methods=["POST", "GET"])
 def livesearch():
+    """"Живой поиск" - данная функция необходима для работы
+       поисковой строки в шапке сайта
+       ВАЖНО! Код поисковой строки написан на js внутри base.html"""
+
     query = request.form.get("query")
     if query is None:
         return redirect('/')
@@ -293,6 +349,9 @@ def livesearch():
 
 
 def search_apps_by_name(name: str):
+    """Вспомогательная функция для поиска приложений Steam по названию
+       Результаты сортируются по близости названия и appid"""
+
     requested_name = name.strip().lower()
     response = requests.get('http://api.steampowered.com/ISteamApps/GetAppList/v0002/',
                             params={'key': cfg.API_KEY, "type": "game"})

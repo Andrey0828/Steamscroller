@@ -1,7 +1,11 @@
+# список стран и их определения
+
 from typing import NamedTuple, List
 
 
 class Country(NamedTuple):
+    """Контейнер с информацией о стране"""
+
     timezones: List[str]
     code: str
     continent: str
@@ -315,12 +319,13 @@ _countries_raw = (
      'capital': 'London'},
 )
 
+# собираем данные в контейнеры
 countries = tuple(Country(**c) for c in _countries_raw)
-
-"""Поиск названия страны"""
 
 
 def search_country_by_name(abbreviation) -> Country:
+    """Ищем нужную страну по её аббревиатуре"""
+
     for country in countries:
         if country.code == abbreviation:
             return country
