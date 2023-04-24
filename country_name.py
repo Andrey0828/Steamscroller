@@ -9,6 +9,7 @@ class Country(NamedTuple):
     capital: str
 
 
+# кортеж словарей со странами
 _countries_raw = (
     {'timezones': ['Europe/Andorra'], 'code': 'AD', 'continent': 'Europe', 'name': 'Andorra',
      'capital': 'Andorra la Vella'},
@@ -315,6 +316,8 @@ _countries_raw = (
 )
 
 countries = tuple(Country(**c) for c in _countries_raw)
+
+"""Поиск названия страны"""
 
 
 def search_country_by_name(abbreviation) -> Country:

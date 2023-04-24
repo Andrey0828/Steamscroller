@@ -9,8 +9,9 @@ import config as cfg
 from games import Appid730GameStats
 from country_name import search_country_by_name
 
-
 api_caller = WebAPI(key=cfg.API_KEY)
+
+"""Обозначение типа переменных"""
 
 
 class SteamUser(NamedTuple):
@@ -38,6 +39,9 @@ class SteamUserFriend(NamedTuple):
     avatar: str
 
 
+"""Получение сведений об пользователе"""
+
+
 def get_user(steamid: int):
     if not SteamID(steamid).is_valid():
         return
@@ -49,18 +53,18 @@ def get_user(steamid: int):
     user = player_request[0]
     level = api_caller.IPlayerService.GetSteamLevel(steamid=steamid)['response'].get('player_level')
 
-    nick = user['personaname']
-    name = user.get('realname')
-    avatar = user.get('avatarfull')
-    country = user.get('loccountrycode')
+    nick = user['personaname']  # никнейм
+    name = user.get('realname')  # имя
+    avatar = user.get('avatarfull')  # аватар
+    country = user.get('loccountrycode')  # код страны
     if country:
         country = search_country_by_name(country)
         if country:
             country = country.name
-    profile_created = user.get('timecreated')
+    profile_created = user.get('timecreated')  # время создания профиля
     if profile_created:
         profile_created = dt.datetime.fromtimestamp(profile_created).strftime('%A, %d %B %Y, %H:%M:%S')
-    last_logoff = user.get('lastlogoff')
+    last_logoff = user.get('lastlogoff')  # время последнего входа
     if last_logoff:
         last_logoff = dt.datetime.fromtimestamp(last_logoff).strftime('%A, %d %B %Y, %H:%M:%S')
 
@@ -68,6 +72,7 @@ def get_user(steamid: int):
     community_ban = vac_ban = game_bans = economy_ban = None
     days_since_last_ban = 0
 
+    # Наличие банов
     if bans_request:
         bans = bans_request['players'][0]
         community_ban = bans['CommunityBanned']
@@ -82,9 +87,15 @@ def get_user(steamid: int):
                      SteamUser.Bans(community_ban, vac_ban, game_bans, economy_ban, days_since_last_ban))
 
 
+"""Получение деталей об игре"""
+
+
 def get_app_details(appid):
     return requests.get('http://store.steampowered.com/api/appdetails/',
                         params={'appids': str(appid), 'cc': 'en', 'l': 'en'}).json()[str(appid)]
+
+
+"""Получение списка друзей"""
 
 
 def get_friends(steamid: int):
@@ -101,6 +112,9 @@ def get_friends(steamid: int):
         return
 
 
+"""Получение списка игр"""
+
+
 def get_games(steamid: int):
     try:
         games_request = api_caller.IPlayerService.GetOwnedGames(steamid=steamid, include_appinfo=True,
@@ -111,6 +125,9 @@ def get_games(steamid: int):
             return games_request['response']['games']
     except requests.ConnectionError:
         return
+
+
+"""Получение статистики в игре"""
 
 
 def get_730_stats(steamid):

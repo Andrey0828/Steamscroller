@@ -5,6 +5,8 @@ from sqlalchemy_serializer import SerializerMixin
 
 from .db_session import SqlAlchemyBase
 
+"""Модель пользователя"""
+
 
 class User(SqlAlchemyBase, UserMixin, SerializerMixin):
     __tablename__ = 'users'

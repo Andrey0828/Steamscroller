@@ -1,6 +1,8 @@
 import requests
 import config as cfg
 
+"""Поиск сведений об игре """
+
 
 def search_game_on_steam(app_id):
     about_game = {}
@@ -17,13 +19,14 @@ def search_game_on_steam(app_id):
         return 'not found'
 
     game_info = game_info['data']
-    about_game['header_image'] = game_info['header_image']
-    about_game['appid'] = game_info['steam_appid']
-    about_game['name'] = game_info['name']
-    about_game['genres'] = game_info.get('genres')
-    about_game['developers'] = game_info.get('developers')
-    about_game["release_date"] = game_info['release_date']['date']
-    about_game['detailed_description'] = game_info['detailed_description']
+    about_game['header_image'] = game_info['header_image']  # иконка
+    about_game['appid'] = game_info['steam_appid']  # id
+    about_game['name'] = game_info['name']  # название
+    about_game['genres'] = game_info.get('genres')  # жанры
+    about_game['developers'] = game_info.get('developers')  # разработчики
+    about_game["release_date"] = game_info['release_date']['date']  # дата реализации
+    about_game['detailed_description'] = game_info['detailed_description']  # описание
+    # цена
     if game_info['is_free']:
         about_game["price"] = 'free'
     else:
@@ -32,6 +35,7 @@ def search_game_on_steam(app_id):
         except KeyError:
             about_game["price"] = "unknown :("
 
+    # системные требования
     about_game['pc_requirements'] = {}
     if isinstance(game_info['pc_requirements'], list):
         if game_info['pc_requirements']:
@@ -65,6 +69,7 @@ def search_game_on_steam(app_id):
     if game_info.get('categories'):
         about_game['categories'] = game_info['categories']
 
+    # видеоролики
     about_game['movies'] = []
     if game_info.get('movies'):
         for movie in game_info['movies']:
@@ -74,11 +79,14 @@ def search_game_on_steam(app_id):
                 about_game['movies'].append(movie['webm'][list(movie['webm'])[-1]])
 
     about_game['background_raw'] = game_info['background_raw']
+
+    # скриншоты
     if game_info.get('screenshots'):
         about_game['images'] = []
         for img in game_info['screenshots']:
             about_game['images'].append(img['path_full'])
 
+    # количество игроков онлайн в данный момент
     try:
         url = f"https://api.steampowered.com/ISteamUserStats/GetNumberOfCurrentPlayers/v1/"
         params = {"key": cfg.API_KEY, "appid": app_id, "format": "json"}

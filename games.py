@@ -1,5 +1,7 @@
 from typing import NamedTuple
 
+"""Обозначение типа переменных"""
+
 
 class Appid730GameStats(NamedTuple):
     steamid: int
@@ -152,6 +154,8 @@ class Appid730GameStats(NamedTuple):
     total_hits_m249: int
     total_kills_m249: int
     m249_accuracy: float
+
+    """Приведение статистики игры в необходимую нам форму"""
 
     @classmethod
     def from_dict(cls, stats: dict):
