@@ -1,11 +1,6 @@
-import sqlite3
-
 import validators
 from flask_login import LoginManager, login_user, login_required, logout_user, current_user
 from flask import Flask, render_template, redirect, request, url_for, abort
-from flask_restful import Api
-
-import games_api
 
 from game_search import search_game_on_steam
 
@@ -27,10 +22,8 @@ import config as cfg
 
 TITLE = 'Steamscroller'
 app = Flask(__name__)
-api = Api(app)
-app.config['SECRET_KEY'] = cfg.FLASKAPP_SECRET_KEY
 
-api.add_resource(games_api.Add_domen, '/api/domen')
+app.config['SECRET_KEY'] = cfg.FLASKAPP_SECRET_KEY
 
 login_manager = LoginManager()
 login_manager.init_app(app)
@@ -60,16 +53,13 @@ def logout():
 
 @app.route('/steamauth/')
 def steam_auth():
-    con = sqlite3.connect('db/domen.db')
-    cur = con.cursor()
-    result = cur.execute("""SELECT * FROM add_for_domen""").fetchall()
     params = {
         'openid.ns': "http://specs.openid.net/auth/2.0",
         'openid.identity': "http://specs.openid.net/auth/2.0/identifier_select",
         'openid.claimed_id': "http://specs.openid.net/auth/2.0/identifier_select",
         'openid.mode': 'checkid_setup',
-        'openid.return_to': result[0][0],
-        'openid.realm': result[0][1]
+        'openid.return_to': request.url_root + url_for('login'),
+        'openid.realm': request.url_root
     }
 
     param_string = parse.urlencode(params)
