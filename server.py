@@ -79,47 +79,48 @@ def steam_auth():
 
 @app.route('/searchuser/', methods=['GET', 'POST'])
 def search_user():
-    if current_user.is_authenticated:
-        form = SearchUsersForm()
-        if form.validate_on_submit():
-            query = form.query.data
-            if validators.url(query):
-                if not steam_profile_re.match(query):
-                    return render_template('forms/search_steam_user.html', title=f'{TITLE} :: Search Steam users',
-                                           form=form,
-                                           message="Incorrect format.<br>"
-                                                   "<br>"
-                                                   "Supported formats:<br>"
-                                                   "https://steamcommunity.com/id/mmger<br>"
-                                                   "https://steamcommunity.com/profiles/76561198037479071<br>"
-                                                   "mmger<br>"
-                                                   "76561198037479071")
+    if not current_user.is_authenticated:
+        return redirect('/login')
 
-                link_parts = steam_profile_re.match(query).group(0).split('/')
-                query = link_parts[-1]
-
-            if SteamID(query).is_valid():
-                return redirect(url_for('steam_profile', steamid=int(query)))
-
-            resolve_vanity = steamapi.api_caller.ISteamUser.ResolveVanityURL(vanityurl=query,
-                                                                             url_type=1)['response']
-            if resolve_vanity['success'] == 1:
-                return redirect(url_for('steam_profile', steamid=resolve_vanity['steamid']))
-            if resolve_vanity['success'] == 42:
+    form = SearchUsersForm()
+    if form.validate_on_submit():
+        query = form.query.data
+        if validators.url(query):
+            if not steam_profile_re.match(query):
                 return render_template('forms/search_steam_user.html', title=f'{TITLE} :: Search Steam users',
                                        form=form,
-                                       message="Incorrect format.\n"
-                                               "\n"
-                                               "Supported formats:\n"
-                                               "https://steamcommunity.com/id/mmger\n"
-                                               "https://steamcommunity.com/profiles/76561198037479071\n"
-                                               "mmger\n"
+                                       message="Incorrect format.<br>"
+                                               "<br>"
+                                               "Supported formats:<br>"
+                                               "https://steamcommunity.com/id/mmger<br>"
+                                               "https://steamcommunity.com/profiles/76561198037479071<br>"
+                                               "mmger<br>"
                                                "76561198037479071")
-            return render_template('forms/search_steam_user.html', title=f'{TITLE} :: Search Steam users', form=form,
-                                   message=f"Failed to resolve Vanity URL, please try again."
-                                           f" ({resolve_vanity['success']})")
-        return render_template('forms/search_steam_user.html', title=f'{TITLE} :: Search Steam users', form=form)
-    return redirect('/login')
+
+            link_parts = steam_profile_re.match(query).group(0).split('/')
+            query = link_parts[-1]
+
+        if SteamID(query).is_valid():
+            return redirect(url_for('steam_profile', steamid=int(query)))
+
+        resolve_vanity = steamapi.api_caller.ISteamUser.ResolveVanityURL(vanityurl=query,
+                                                                         url_type=1)['response']
+        if resolve_vanity['success'] == 1:
+            return redirect(url_for('steam_profile', steamid=resolve_vanity['steamid']))
+        if resolve_vanity['success'] == 42:
+            return render_template('forms/search_steam_user.html', title=f'{TITLE} :: Search Steam users',
+                                   form=form,
+                                   message="Incorrect format.\n"
+                                           "\n"
+                                           "Supported formats:\n"
+                                           "https://steamcommunity.com/id/mmger\n"
+                                           "https://steamcommunity.com/profiles/76561198037479071\n"
+                                           "mmger\n"
+                                           "76561198037479071")
+        return render_template('forms/search_steam_user.html', title=f'{TITLE} :: Search Steam users', form=form,
+                               message=f"Failed to resolve Vanity URL, please try again."
+                                       f" ({resolve_vanity['success']})")
+    return render_template('forms/search_steam_user.html', title=f'{TITLE} :: Search Steam users', form=form)
 
 
 @app.route('/login/', methods=['GET', 'POST'])
@@ -202,7 +203,7 @@ def steam_profile_730stats(steamid: int):
                            user=user, stats=stats)
 
 
-@app.route("/profiles/<int:steamid>/games/", methods=['POST', 'GET'])
+@app.route("/profiles/<int:steamid>/games/")
 def steam_profile_games(steamid: int):
     if not current_user.is_authenticated:
         return redirect('/login')
@@ -233,7 +234,7 @@ def steam_profile_friends(steamid: int):
                            friends=friends)
 
 
-@app.route("/profiles/<int:steamid>/", methods=['POST', 'GET'])
+@app.route("/profiles/<int:steamid>/")
 def steam_profile(steamid: int):
     if not current_user.is_authenticated:
         return redirect('/login')
@@ -270,7 +271,7 @@ def search_app(query: str):
                            results=search_apps_by_name(query))
 
 
-@app.route("/app/<int:appid>/")
+@app.route('/app/<int:appid>/')
 def app_page(appid: int):
     if not current_user.is_authenticated:
         return redirect('/login')

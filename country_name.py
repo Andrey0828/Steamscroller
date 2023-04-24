@@ -1,8 +1,8 @@
-from typing import NamedTuple
+from typing import NamedTuple, List
 
 
 class Country(NamedTuple):
-    timezones: list[str]
+    timezones: List[str]
     code: str
     continent: str
     name: str

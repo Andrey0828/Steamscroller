@@ -23,12 +23,12 @@ class SteamUser(NamedTuple):
 
     id: int
     nickname: str
-    name: str | None
+    name: str
     avatar: str
-    level: int | None
-    country: str | None
+    level: int
+    country: str
     profile_created: str
-    last_logoff: str | None
+    last_logoff: str
     bans: Bans
 
 
@@ -38,7 +38,7 @@ class SteamUserFriend(NamedTuple):
     avatar: str
 
 
-def get_user(steamid: int) -> SteamUser | None:
+def get_user(steamid: int):
     if not SteamID(steamid).is_valid():
         return
 
@@ -82,12 +82,12 @@ def get_user(steamid: int) -> SteamUser | None:
                      SteamUser.Bans(community_ban, vac_ban, game_bans, economy_ban, days_since_last_ban))
 
 
-def get_app_details(appid: str | int) -> dict | None:
+def get_app_details(appid):
     return requests.get('http://store.steampowered.com/api/appdetails/',
                         params={'appids': str(appid), 'cc': 'en', 'l': 'en'}).json()[str(appid)]
 
 
-def get_friends(steamid: int) -> list | None:
+def get_friends(steamid: int):
     try:
         friendslist_request = api_caller.ISteamUser.GetFriendList(steamid=steamid)
         if friendslist_request:
@@ -101,7 +101,7 @@ def get_friends(steamid: int) -> list | None:
         return
 
 
-def get_games(steamid) -> list | None:
+def get_games(steamid: int):
     try:
         games_request = api_caller.IPlayerService.GetOwnedGames(steamid=steamid, include_appinfo=True,
                                                                 include_played_free_games=True, appids_filter=None,
@@ -113,7 +113,7 @@ def get_games(steamid) -> list | None:
         return
 
 
-def get_730_stats(steamid) -> Appid730GameStats | None:
+def get_730_stats(steamid):
     try:
         response = api_caller.ISteamUserStats.GetUserStatsForGame(appid=730, steamid=steamid)
         if response:
